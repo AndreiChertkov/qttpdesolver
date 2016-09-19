@@ -11,7 +11,7 @@ from qttpdesolver.utils.general import MODE_NP, MODE_TT, rel_err
 from qttpdesolver.utils.grid import _mesh_cc, _mesh_lc, _mesh_rc
 from qttpdesolver.utils.grid import _mesh_uxe, _mesh_uye, _mesh_uze
 from qttpdesolver.utils.grid import _construct_mesh, quan_on_grid
-from qttpdesolver.utils.grid import coord2ind, delta_on_grid, deltas_on_grid
+from qttpdesolver.utils.grid import coord2ind, mind2ind, delta_on_grid, deltas_on_grid
 
 class TestUtilsGrid(unittest.TestCase):
     ''' Tests for functions from utils.grid module (prototype).  '''
@@ -595,7 +595,7 @@ class TestUtilsGrid_coord2ind(TestUtilsGrid):
         h = L/n
         ind_exp = [0, 0, 0, 0, 1, 1, n-2, n-1, n-1]
         for i, r in enumerate([[-1.], [0.], [h], [h*1.4], [h*1.51], [h*1.99], [h*n-h*0.6], [h*n-h*0.1], [h*n+10]]):
-            ind = coord2ind(r, d, L)
+            ind = mind2ind(coord2ind(r, d, L), n)
             self.assertEqual(ind, ind_exp[i])
     
     def test_2d(self):
@@ -608,7 +608,7 @@ class TestUtilsGrid_coord2ind(TestUtilsGrid):
         ind_exp = [0, 0, 0, 0, 9, 9, 54, 63, 63]
         for i, r in enumerate([[-1., -1.], [0., 0.], [h, h], [h*1.4, h*1.4], [h*1.51, h*1.51], 
                   [h*1.99, h*1.99], [h*n-h*0.6, h*n-h*0.6], [h*n-h*0.1, h*n-h*0.1], [h*n+10, h*n+10]]):
-            ind = coord2ind(r, d, L)
+            ind = mind2ind(coord2ind(r, d, L), n)
             self.assertEqual(ind, ind_exp[i])
     
     def test_3d(self):
@@ -621,158 +621,158 @@ class TestUtilsGrid_coord2ind(TestUtilsGrid):
         ind_exp = [0, 0, 0, 0, 21, 21, 42, 63, 63]
         for i, r in enumerate([[-1.]*3, [0.]*3, [h]*3, [h*1.4]*3, [h*1.51]*3, 
                                [h*1.99]*3, [h*n-h*0.6]*3, [h*n-h*0.1]*3, [h*n+10]*3]):
-            ind = coord2ind(r, d, L)
+            ind = mind2ind(coord2ind(r, d, L), n)
             self.assertEqual(ind, ind_exp[i])
 
-class TestUtilsGrid_delta_on_grid(TestUtilsGrid):
-    ''' 
-    Tests for function delta_on_grid
-    from module utils.grid.
-    '''
+#class TestUtilsGrid_delta_on_grid(TestUtilsGrid):
+#    ''' 
+#    Tests for function delta_on_grid
+#    from module utils.grid.
+#    '''
+#        
+#    def test_1d_np(self):
+#        ''' Check for 1D.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [2*h+0.45*h], 3.
+#        res = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        self.assertEqual(len(res.shape), 1)
+#        self.assertEqual(res.shape[0], n)
+#        self.assertTrue(abs(np.sum(res)-val/h) < ZEROp)
+#
+#    def test_1d_np_vs_tt(self):
+#        ''' In 1D case results for MODE_NP and MODE_TT should be equal.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [2*h+0.45*h], 3.
+#        res1 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        res2 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
+#        self.assertTrue(rel_err(res1, res2) < ZEROp) 
+#        
+#    def test_2d_np(self):
+#        ''' Check for 2D.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [2*h+0.45*h, 2*h+0.45*h], 2.
+#        res = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        self.assertEqual(len(res.shape), 1)
+#        self.assertEqual(res.shape[0], n*n)
+#        self.assertTrue(abs(np.sum(res)-val/h/h) < ZEROp)
+#
+#    def test_2d_np_vs_tt(self):
+#        ''' In 2D case results for MODE_NP and MODE_TT should be equal.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [2*h+0.45*h]*2, 3.
+#        res1 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        res2 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
+#        self.assertTrue(rel_err(res1, res2) < ZEROp) 
+#         
+#    def test_3d_np(self):
+#        ''' Check for 3D.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [2*h+0.45*h, 2*h+0.45*h, 2*h+0.45*h], 2.
+#        res = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        self.assertEqual(len(res.shape), 1)
+#        self.assertEqual(res.shape[0], n*n*n)
+#        self.assertTrue(abs(np.sum(res)-val/h/h/h) < ZEROp)
+#
+#    def test_3d_np_vs_tt(self):
+#        ''' In 3D case results for MODE_NP and MODE_TT should be equal.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [2*h+0.45*h]*3, 4.
+#        res1 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        res2 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
+#        self.assertTrue(rel_err(res1, res2) < ZEROp) 
         
-    def test_1d_np(self):
-        ''' Check for 1D.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [2*h+0.45*h], 3.
-        res = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        self.assertEqual(len(res.shape), 1)
-        self.assertEqual(res.shape[0], n)
-        self.assertTrue(abs(np.sum(res)-val/h) < ZEROp)
-
-    def test_1d_np_vs_tt(self):
-        ''' In 1D case results for MODE_NP and MODE_TT should be equal.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [2*h+0.45*h], 3.
-        res1 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        res2 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
-        self.assertTrue(rel_err(res1, res2) < ZEROp) 
-        
-    def test_2d_np(self):
-        ''' Check for 2D.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [2*h+0.45*h, 2*h+0.45*h], 2.
-        res = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        self.assertEqual(len(res.shape), 1)
-        self.assertEqual(res.shape[0], n*n)
-        self.assertTrue(abs(np.sum(res)-val/h/h) < ZEROp)
-
-    def test_2d_np_vs_tt(self):
-        ''' In 2D case results for MODE_NP and MODE_TT should be equal.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [2*h+0.45*h]*2, 3.
-        res1 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        res2 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
-        self.assertTrue(rel_err(res1, res2) < ZEROp) 
-         
-    def test_3d_np(self):
-        ''' Check for 3D.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [2*h+0.45*h, 2*h+0.45*h, 2*h+0.45*h], 2.
-        res = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        self.assertEqual(len(res.shape), 1)
-        self.assertEqual(res.shape[0], n*n*n)
-        self.assertTrue(abs(np.sum(res)-val/h/h/h) < ZEROp)
-
-    def test_3d_np_vs_tt(self):
-        ''' In 3D case results for MODE_NP and MODE_TT should be equal.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [2*h+0.45*h]*3, 4.
-        res1 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        res2 = delta_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
-        self.assertTrue(rel_err(res1, res2) < ZEROp) 
-        
-class TestUtilsGrid_deltas_on_grid(TestUtilsGrid):
-    ''' 
-    Tests for function deltas_on_grid
-    from module utils.grid.
-    '''
-        
-    def test_1d_np(self):
-        ''' Check for 1D.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [[2*h+0.45*h], [3*h+0.45*h]], [3., 4.]
-        res = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        self.assertEqual(len(res.shape), 1)
-        self.assertEqual(res.shape[0], n)
-        self.assertTrue(abs(np.sum(res)-val[0]/h-val[1]/h) < ZEROp)
-
-    def test_1d_np_vs_tt(self):
-        ''' In 1D case results for MODE_NP and MODE_TT should be equal.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [[2*h+0.45*h], [3*h+0.45*h]], [3., 4.]
-        res1 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        res2 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
-        self.assertTrue(rel_err(res1, res2) < ZEROp) 
-        
-    def test_2d_np(self):
-        ''' Check for 2D.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [[2*h+0.45*h, 2*h+0.45*h], [2*h+0.45*h, 2*h+0.45*h]], [2., 5.]
-        res = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        self.assertEqual(len(res.shape), 1)
-        self.assertEqual(res.shape[0], n*n)
-        self.assertTrue(abs(np.sum(res)-val[0]/h/h-val[1]/h/h) < ZEROp)
-
-    def test_2d_np_vs_tt(self):
-        ''' In 2D case results for MODE_NP and MODE_TT should be equal.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [[2*h+0.45*h, 2*h+0.45*h], [2*h+0.45*h, 2*h+0.45*h]], [2., 5.]
-        res1 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        res2 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
-        self.assertTrue(rel_err(res1, res2) < ZEROp) 
-         
-    def test_3d_np(self):
-        ''' Check for 3D.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [[2*h+0.45*h, 2*h+0.45*h, 2*h+0.45*h] for _ in range(3)], [2., 1., 6.]
-        res = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        self.assertEqual(len(res.shape), 1)
-        self.assertEqual(res.shape[0], n*n*n)
-        self.assertTrue(abs(np.sum(res)-val[0]/h/h/h-val[1]/h/h/h-val[2]/h/h/h) < ZEROp)
-
-    def test_3d_np_vs_tt(self):
-        ''' In 3D case results for MODE_NP and MODE_TT should be equal.  '''
-        L = 1.
-        d = 3
-        n = 2**d
-        h = L/n
-        r, val = [[2*h+0.45*h, 2*h+0.45*h, 2*h+0.45*h] for _ in range(3)], [2., 1., 6.]
-        res1 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
-        res2 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
-        self.assertTrue(rel_err(res1, res2) < ZEROp) 
+#class TestUtilsGrid_deltas_on_grid(TestUtilsGrid):
+#    ''' 
+#    Tests for function deltas_on_grid
+#    from module utils.grid.
+#    '''
+#        
+#    def test_1d_np(self):
+#        ''' Check for 1D.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [[2*h+0.45*h], [3*h+0.45*h]], [3., 4.]
+#        res = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        self.assertEqual(len(res.shape), 1)
+#        self.assertEqual(res.shape[0], n)
+#        self.assertTrue(abs(np.sum(res)-val[0]/h-val[1]/h) < ZEROp)
+#
+#    def test_1d_np_vs_tt(self):
+#        ''' In 1D case results for MODE_NP and MODE_TT should be equal.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [[2*h+0.45*h], [3*h+0.45*h]], [3., 4.]
+#        res1 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        res2 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
+#        self.assertTrue(rel_err(res1, res2) < ZEROp) 
+#        
+#    def test_2d_np(self):
+#        ''' Check for 2D.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [[2*h+0.45*h, 2*h+0.45*h], [2*h+0.45*h, 2*h+0.45*h]], [2., 5.]
+#        res = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        self.assertEqual(len(res.shape), 1)
+#        self.assertEqual(res.shape[0], n*n)
+#        self.assertTrue(abs(np.sum(res)-val[0]/h/h-val[1]/h/h) < ZEROp)
+#
+#    def test_2d_np_vs_tt(self):
+#        ''' In 2D case results for MODE_NP and MODE_TT should be equal.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [[2*h+0.45*h, 2*h+0.45*h], [2*h+0.45*h, 2*h+0.45*h]], [2., 5.]
+#        res1 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        res2 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
+#        self.assertTrue(rel_err(res1, res2) < ZEROp) 
+#         
+#    def test_3d_np(self):
+#        ''' Check for 3D.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [[2*h+0.45*h, 2*h+0.45*h, 2*h+0.45*h] for _ in range(3)], [2., 1., 6.]
+#        res = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        self.assertEqual(len(res.shape), 1)
+#        self.assertEqual(res.shape[0], n*n*n)
+#        self.assertTrue(abs(np.sum(res)-val[0]/h/h/h-val[1]/h/h/h-val[2]/h/h/h) < ZEROp)
+#
+#    def test_3d_np_vs_tt(self):
+#        ''' In 3D case results for MODE_NP and MODE_TT should be equal.  '''
+#        L = 1.
+#        d = 3
+#        n = 2**d
+#        h = L/n
+#        r, val = [[2*h+0.45*h, 2*h+0.45*h, 2*h+0.45*h] for _ in range(3)], [2., 1., 6.]
+#        res1 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_NP)
+#        res2 = deltas_on_grid(r, val, d, tau=1.E-8, mode=MODE_TT).full().flatten('F')
+#        self.assertTrue(rel_err(res1, res2) < ZEROp) 
         
 if __name__ == '__main__':
     unittest.main()

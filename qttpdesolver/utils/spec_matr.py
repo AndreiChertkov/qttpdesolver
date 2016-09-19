@@ -126,6 +126,24 @@ def vzeros_except_one(d, ind, mode=MODE_NP, value=1.):
         cr.append(cur_core)
     return value*tt.vector.from_list(cr)
     
+def vzeros_except_few(d, lind, mode=MODE_NP, lvalue=None):
+    '''
+    Construct a vector in the given mode of length 2**d with only few
+    nonzero elements in positions lind, that are equal to given values.
+    '''
+    if lvalue is None:
+        lvalue = [1.]*len(lind)
+        
+        
+    if mode!=MODE_TT:
+        res = np.zeros(2**d)
+        for i in range(len(lind)):
+            res[lind[i]] = lvalue[i]
+        return res
+    else:
+        raise ValueError('It not works for MODE_TT.')
+
+    
 # Are not used!        
 #
 #from scipy.sparse import coo_matrix

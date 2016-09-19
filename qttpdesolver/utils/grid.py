@@ -5,7 +5,7 @@ import tt
 import tt.multifuncrs2 as multifuncrs2
 
 from general import MODE_NP, MODE_SP, ttround, msum
-from block_and_space import space_kron
+from block_and_space import kronm, space_kron
 from spec_matr import vzeros_except_one
 
 def _mesh_cc(d, dim, tau=None, mode=MODE_NP):
@@ -105,44 +105,7 @@ def _construct_mesh(d, dim, tau=None, mode=MODE_NP, grid='cc'):
     else:
         raise ValueError('Unknown grid type.')
     return mesh
- 
-def delta_on_grid(r, val, d, tau=None, mode=MODE_NP, grid='rc'):
-    '''
-    Construct delta function on spatial grid.
-        r      - is a list of source coordinates according to dimension (dim)
-        val    - is a value of source (float)
-        d      - grid factor (total number of cells 2^{d*dim})
-        tau    - tolerance for TT-rounding
-        mode   - is the mode of calculation (MODE_NP or MODE_TT, or MODE_SP)
-        grid     - is the type of the grid:
-                     'rc'  or 'right corners' (cell corner with maximum coord.)
-    '''
-    if grid.lower()!='rc' and grid.lower()!='right corners':
-        raise ValueError('Delta on grid works only for rc mesh type.')
-    dim = len(r)     
-    ind = coord2ind(r, d, 1., grid)
-    res = vzeros_except_one(d*dim, ind, mode, val*2**(d*dim))
-    return res
-    
-def deltas_on_grid(r_list, val_list, d, tau=None, mode=MODE_NP, grid='rc'):
-    '''
-    Construct a sum of delta functions on spatial grid.
-        r_list   - is a list of source locations according to dimension (dim)
-        val_list - is a list of values of sources
-        d        - grid factor (total number of cells 2^{d*dim})
-        tau      - tolerance for TT-rounding
-        mode     - is the mode of calculation (MODE_NP or MODE_TT, or MODE_SP)
-        grid     - is the type of the grid:
-                     'rc'  or 'right corners' (cell corner with maximum coord.)
-    '''     
-    for i in range(len(val_list)):
-        res_curr = delta_on_grid(r_list[i], val_list[i], d, tau, mode, 'rc')
-        if i==0:
-            res = res_curr
-        else:
-            res = msum([res, res_curr], tau)
-    return res
-                 
+                  
 def quan_on_grid(func, d, dim, tau=None, eps=None, mode=MODE_NP, grid='cc',
                  name='Unknown spatial function', verb=False, inv=False):
     '''
@@ -178,6 +141,88 @@ def quan_on_grid(func, d, dim, tau=None, eps=None, mode=MODE_NP, grid='cc',
             x = multifuncrs2(mesh, lambda x: 1./func(x), eps, verb=verb, y0=mesh[0])
     return ttround(x, tau)
     
+def deltas_on_grid(r_list, val_list, d, tau=None, mode=MODE_NP, grid='rc'):
+    '''
+    Construct a sum of delta functions on spatial grid.
+        r_list   - is a list of source locations according to dimension (dim)
+        val_list - is a list of values of sources
+        d        - grid factor (total number of cells 2^{d*dim})
+        tau      - tolerance for TT-rounding
+        mode     - is the mode of calculation (MODE_NP or MODE_TT, or MODE_SP)
+        grid     - is the type of the grid:
+                     'rc'  or 'right corners' (cell corner with maximum coord.)
+    '''     
+    for i in range(len(val_list)):
+        res_curr = delta_on_grid(r_list[i], val_list[i], d, tau, mode, 'rc')
+        if i==0:
+            res = res_curr
+        else:
+            res = msum([res, res_curr], tau)
+    return res
+
+def delta_on_grid(r, val, d, tau=None, mode=MODE_NP, grid='rc'):
+    '''
+    Construct delta function on spatial grid.
+        r      - is a list of source coordinates according to dimension (dim)
+        val    - is a value of source (float)
+        d      - grid factor (total number of cells 2^{d*dim})
+        tau    - tolerance for TT-rounding
+        mode   - is the mode of calculation (MODE_NP or MODE_TT, or MODE_SP)
+        grid     - is the type of the grid:
+                     'rc'  or 'right corners' (cell corner with maximum coord.)
+    '''
+    if grid.lower()!='rc' and grid.lower()!='right corners':
+        raise ValueError('Delta on grid works only for rc mesh type.')
+    n = 2**d
+    L = 1.
+    h = L/n
+    dim = len(r)   
+    res = []
+    for i in range(dim-1, -1, -1):
+        i1, h1 = nearest_left_node(r[i], n, L)
+        if i1>= n-1:
+            raise ValueError('Incorrect point source location.')
+        i2, h2 = i1+1, h-h1
+        res.append(msum([vzeros_except_one(d, i1, mode, val*h2/h**2), 
+                         vzeros_except_one(d, i2, mode, val*h1/h**2)], tau))
+    return kronm(res, tau)
+    
+def mind2ind(mind, n):
+    '''
+    Construct flatten index from multi-index
+        Input:
+    mind   - is a multi index of length dim
+    n      - total number of grid cells along one axis
+        Output:
+    ind    - integer index >=0, <=n**dim-1
+    '''
+    dim = len(mind)
+    ind = mind[0]
+    for i in range(1, dim):
+        ind+= mind[i]*(n**i)
+    return ind
+ 
+def nearest_left_node(x, n, L, grid='rc'):
+    '''
+    Get left nearest node of 1D spatial grid to a given point x and distance.
+        Input:
+    x      - is a coordinate of the point
+    n      - total number of grid cells
+    L      - size of the rectangular grid
+    grid   - is the type of the grid:
+               'rc'  or 'right corners' (cell corner with maximum coord.)
+        Output:
+    i1, h1  - left nearest index and distance
+    '''
+    if grid.lower()!='rc' and grid.lower()!='right corners':
+        raise ValueError('coord2ind works only for rc grid type.')
+    h = L/n
+    if x<h:
+        return None, None
+    i1 = int(x/h)-1
+    h1 = x - (h+h*i1)
+    return i1, h1 
+    
 def coord2ind(r, d, L, grid='rc'):
     '''
     Construct nearest index on flatten (with Fortran ordering style)
@@ -189,7 +234,7 @@ def coord2ind(r, d, L, grid='rc'):
     grid   - is the type of the grid:
                'rc'  or 'right corners' (cell corner with maximum coord.)
         Output:
-    ind    - integer index >=0, <=2^{d*dim}-1
+    mind   - list of length dim, that is a multi-index of the nearest grid point
     '''
     if grid.lower()!='rc' and grid.lower()!='right corners':
         raise ValueError('coord2ind works only for rc grid type.')
@@ -207,7 +252,4 @@ def coord2ind(r, d, L, grid='rc'):
             mind.append(n-1)
         else:
             mind.append(ind)
-    ind = mind[0]
-    for i in range(1, dim):
-        ind+= mind[i]*(n**i)
-    return ind
+    return mind
