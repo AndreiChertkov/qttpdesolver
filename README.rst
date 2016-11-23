@@ -13,12 +13,12 @@ qttpdesolver
   python setup.py install
   
 4. Examples
-  See "./examples/basic.ipynb" for API details.
+  See "./examples/api_basic_*.ipynb" for API details.
   See over examples from "./examples/" folder for more details.
   
 5. Tests
-  Run from console "python ./tests/test_all.py" to perform all tests
-  (-v option is available).
+  Type in console (from the root of the package) "python ./tests/test_all.py"
+  to perform all tests (-v option is available).
 
 6. Authors
   Ivan V. Oseledets  (ivan.oseledets@gmail.com)
