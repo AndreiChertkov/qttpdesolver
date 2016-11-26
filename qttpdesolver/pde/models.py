@@ -6,13 +6,13 @@ models_txt, models_names = [], []
 def get_models_txt():
     s = ''
     for i, m in enumerate(models_txt):
-        s+= '#%2d. Name: |%-s|\n%-s\n'%(i, models_names[i], m)
+        s+= 'Model #%2d. Name: |%-s|\n   %-s\n'%(i, models_names[i], m)
     return s
         
 def set_model(PDE, model_selected):
     if isinstance(model_selected, int):
         model_num = model_selected
-        if model_num >= len(models_txt):
+        if model_num < 0 or model_num >= len(models_txt):
             raise ValueError('Incorrect model number.')
     else:
         try:
@@ -22,7 +22,7 @@ def set_model(PDE, model_selected):
     eval('set_model_%d'%model_num)(PDE)
     return model_num
 
-models_txt.append('-div(k grad u) = f; x in [0, 1]; u_d = 0. A case of 1d PDE with known exact solution')
+models_txt.append('-div(k grad u) = f in [0, 1]; u_d = 0; u is known')
 models_names.append('Simple. Analyt 1D diffusion PDE')
 def set_model_0(PDE):
     PDE.txt = models_txt[0]
@@ -57,7 +57,7 @@ def set_model_0(PDE):
     PDE.params = [np.pi/PDE.L * 2]
     PDE.params_txt = 'w1 [=%-8.4f]'
     
-models_txt.append('-div(k grad u) = f; (x,y) in [0, 1]^2; u_d = 0. Assymetric case with known exact solution')    
+models_txt.append('-div(k grad u) = f in [0, 1]^2; u_d = 0; u is known')  
 models_names.append('Simple. Analyt 2D diffusion PDE')   
 def set_model_1(PDE):
     PDE.txt = models_txt[1]
@@ -100,7 +100,7 @@ def set_model_1(PDE):
     PDE.params = [np.pi/PDE.L * 2, np.pi/PDE.L * 3]
     PDE.params_txt = 'w1 [=%-8.4f], w2 [=%-8.4f]'
 
-models_txt.append('-div(k grad u) = f; (x,y,z) in [0, 1]^3; u_d = 0. Assymetric case with known exact solution')
+models_txt.append('-div(k grad u) = f in [0, 1]^3; u_d = 0; u is known') 
 models_names.append('Simple. Analyt 3D diffusion PDE') 
 def set_model_2(PDE):
     PDE.txt = models_txt[2]
@@ -156,7 +156,7 @@ def set_model_2(PDE):
     PDE.params = [np.pi/PDE.L * 2, np.pi/PDE.L * 3, np.pi/PDE.L * 4]
     PDE.params_txt = 'w1 [=%-8.4f], w2 [=%-8.4f], w3 [=%-8.4f]' 
     
-models_txt.append('-div(k^e grad u^e) = f; x in [0, 1]; u_d = 0. A case of 1d multiscale PDE') 
+models_txt.append('-div(k grad u) = f in [0, 1]; u_d = 0; k - 1d multiscale coeff.') 
 models_names.append('Simple. Msc 1D diffusion PDE')   
 def set_model_3(PDE):
     PDE.txt = models_txt[3]
@@ -211,7 +211,7 @@ def set_model_3(PDE):
     PDE.params = [1.E-4]
     PDE.params_txt = 'e [=%-10.2e]' 
     
-models_txt.append('-div(k^e grad u^e) = f; x in [0, 1]^2; u_d = 0. A case of 2d multiscale PDE')
+models_txt.append('-div(k grad u) = f in [0, 1]^2; u_d = 0; k - 2d multiscale coeff.') 
 models_names.append('Simple. Msc 2D diffusion PDE')    
 def set_model_4(PDE):
     PDE.txt = models_txt[4]
@@ -228,14 +228,11 @@ def set_model_4(PDE):
 
     PDE.f_txt = 'f  = -1'
     PDE.f = f_func
-        
-    PDE.u_txt = 'u  = Unknown!'
-    PDE.u = None
 
     PDE.params = [1.E-2, 1.E-2]
     PDE.params_txt = 'e1 [=%-10.2e], e2 [=%-10.2e]' 
     
-models_txt.append('-div(k^e grad u^e) = f; x in [0, 1]^3; u_d = 0. A case of 3d multiscale PDE') 
+models_txt.append('-div(k grad u) = f in [0, 1]^3; u_d = 0; k - 3d multiscale coeff.') 
 models_names.append('Simple. Msc 3D diffusion PDE')    
 def set_model_5(PDE):
     PDE.txt = models_txt[5]
@@ -252,14 +249,11 @@ def set_model_5(PDE):
 
     PDE.f_txt = 'f  = -1'
     PDE.f = f_func
-        
-    PDE.u_txt = 'u  = Unknown!'
-    PDE.u = None
 
     PDE.params = [1.E-2, 1.E-2, 1.E-2]
     PDE.params_txt = 'e1 [=%-10.2e], e2 [=%-10.2e], e3 [=%-10.2e]'
 
-models_txt.append('-div(k grad u) = f; x in [0, 1]; u_d = 0., f=1')   
+models_txt.append('-div(k grad u) = f in [0, 1]; u_d = 0; f=1')
 models_names.append('Simple. 1D diffusion PDE with rhs=1')      
 def set_model_6(PDE):
     PDE.txt = models_txt[6]
@@ -277,13 +271,10 @@ def set_model_6(PDE):
     PDE.f_txt = 'f  = 1'
     PDE.f = f_func
 
-    PDE.u_txt = 'u  = Unknown'
-    PDE.ux_txt = 'ux = Unknown'
-    
     PDE.params = [0]
     PDE.params_txt = '[=%-8.4f]'
     
-models_txt.append('-div(k grad u) = f; (x,y) in [0, 1]^2; u_d = 0., f=1')  
+models_txt.append('-div(k grad u) = f in [0, 1]^2; u_d = 0; f=1') 
 models_names.append('Simple. 2D diffusion PDE with rhs=1')        
 def set_model_7(PDE):
     PDE.txt = models_txt[7]
@@ -301,14 +292,10 @@ def set_model_7(PDE):
     PDE.f_txt = 'f  = 1'
     PDE.f = f_func
 
-    PDE.u_txt = 'u  = Unknown'
-    PDE.ux_txt = 'ux = Unknown'  
-    PDE.uy_txt = 'uy = Unknown'
-
     PDE.params = [0, 0]
     PDE.params_txt = '[=%-8.4f], [=%-8.4f]'
 
-models_txt.append('-div(k grad u) = f; (x,y,z) in [0, 1]^3; u_d = 0., f=1')
+models_txt.append('-div(k grad u) = f in [0, 1]^3; u_d = 0; f=1')
 models_names.append('Simple. 3D diffusion PDE with rhs=1')      
 def set_model_8(PDE):
     PDE.txt = models_txt[8]
@@ -326,15 +313,10 @@ def set_model_8(PDE):
     PDE.f_txt = 'f  = 1'
     PDE.f = f_func
 
-    PDE.u_txt = 'u  = Unknown'
-    PDE.ux_txt = 'ux = Unknown'
-    PDE.uy_txt = 'uy = Unknown'
-    PDE.uz_txt = 'uz = Unknown'
-
     PDE.params = [0, 0, 0]
     PDE.params_txt = '[=%-8.4f], [=%-8.4f], [=%-8.4f]' 
     
-models_txt.append('-delta u - k^2 u = f; f=0, (x) in [0, 1]^1; u(0)=1, u_x(1)=iku(1) Analyt. Helm.')
+models_txt.append('-delta u - k^2 u = f; in [0, 1]; u(0)=1; u_x(1)=iku(1); f=0')   
 models_names.append('Simple. 1D Helmholtz PDE wuth rhs=0')      
 def set_model_9(PDE):
     PDE.txt = models_txt[9]
@@ -364,7 +346,7 @@ def set_model_9(PDE):
     PDE.params = [100., 1.]
     PDE.params_txt = 'k [=%-8.4f], ud [=%-8.4f]'
     
-models_txt.append('-delta u - k^2 u = f; f=-1, (x) in [0, 1]^1; u(0)=0, u_x(1)=iku(1) Analyt. Helm.')
+models_txt.append('-delta u - k^2 u = f; in [0, 1]; u(0)=0; u_x(1)=iku(1); f=-1')   
 models_names.append('Simple. 1D Helmholtz PDE with rhs=-1')
 def set_model_10(PDE):
     PDE.txt = models_txt[10]
@@ -393,3 +375,30 @@ def set_model_10(PDE):
     
     PDE.params = [100., 0.]
     PDE.params_txt = 'k [=%-8.4f], ud [=%-8.4f]'
+    
+models_txt.append('-div(k grad u) = f in [0, 1]^2; u_d = 0; f - 4 point sources near corners')       
+models_names.append('2D diffusion PDE with 4 point sources as rhs')   
+def set_model_11(PDE):
+    PDE.txt = models_txt[11]
+    PDE.dim = 2; PDE.L = 1.
+    
+    def k_func(x, y, w1, w2):
+        return 1. + x*y
+
+    PDE.k_txt = 'k  = 1+x*y'
+    PDE.k = k_func
+
+    def f_func(x, y, w1, w2):
+        xy = x*y; xy2 = xy*y
+        s1 = np.sin(w1*x*x); s2 = np.sin(w2*y)
+        c1 = np.cos(w1*x*x); c2 = np.cos(w2*y)
+        return (4.*w1*w1*x*x + w2*w2)*(1. +xy2)*s1*s2\
+              - 2.*w1*(1. + 2.*xy2)*c1*s2 - 2.*w2*xy*s1*c2
+
+    PDE.f_txt = 'f  = 4 point sources near corners'
+    PDE.f_func = {'func': 'delta', 
+                  'r_list': [[0.2, 0.2], [0.2, 0.8], [0.8, 0.8], [0.8, 0.2]],
+                  'v_list': [3., 3., 3., 3.]}
+
+    PDE.params = [np.pi/PDE.L * 2, np.pi/PDE.L * 3]
+    PDE.params_txt = 'w1 [=%-8.4f], w2 [=%-8.4f]'

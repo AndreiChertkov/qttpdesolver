@@ -1,90 +1,91 @@
 # -*- coding: utf-8 -*-
-from .pde_utils.txts import compose_res_1s, compose_res, compose_info
-from .pde_utils.algss_pars import AlgssPar
-from .pde_utils.times import Time
-from .pde_utils.taus import Tau
-from .pde_utils.copies import copy
-from .pde_utils.plots import plot
+from copy import deepcopy
 
+from ..tensor_wrapper.lin_syst_solver import LinSystSolver
+from ..utils.grid import Grid
+from plots import plot
+from txts import compose_res_1s, compose_res, compose_info
 from model_pde import ModelPde
 
 class Pde(ModelPde):
     '''
-    A container for PDE of the form -div(k grad u) = f
-    (see parent class ModelPde for more details).
+    A container for PDE of the form -div(k grad u) = f.
+    See parent class ModelPDE for more details.
     
-    * Function clean should be called before every calculation!
+    * Function clean should be called before each calculation!
     
                  Global parameters
                  
-    solver_txt - [None] name of the used PDE solver (is set by set_solver_txt)
-                 * available options: 'solver_fs', 'solver_fd'                          
+    GRD        - [Grid class instance] spatial grid
+                 * is set by set_grd function
+    LSS        - [LinSystSolver class instance] solver of linear systems 
+                 * is set by set_lss function and then may be configured 
+                 by set_lss_params function                    
     d          - [None] scale of grid size
     n          - [None] 1d grid size (=2^d)
     h          - [None] grid step (=L/n)
-                 * d, n, h are set by update_d func
+                 * d, n, h are set by update_d function
+                 * Domain size may be only L=1
+    solver_txt - [None] name of the used PDE solver
+                 * is set by set_solver_txt function
+                 * available options: 'fs' (SOLVER_FS) and 'fd' (SOLVER_FD)
     verb_gen   - [False] is the verbosity of general output (times and so on)
-    verb_cross - [False] is the verbosity of output for cross iterations
-    verb_amen  - [False] is the verbosity of output for amen iterations
+    verb_crs   - [False] is the verbosity of output for cross iterations
+    verb_lss   - [False] is the verbosity of output for LSS iterations
                  * verb_* are set by set_verb function
                  * verb_* are for Solver's output verbosity only
     sol0       - [None] initial guess for solution of linear system:
                  for solver_fs - is a guess for mu_x (2d) or [mu_x,mu_y] (3d),
                  for solver_fd - is a guess for PDE solution u_calc
-                 (is set by set_sol0 function)
-    with_en    - [False] if True then energy will be calculated 
-                 (is set by set_with_en function) 
-    tau        - [dict of None] tt-accuracy for round-operation, 
-                 cross-function and amen-function (is set by set_tau function)           
-    algss_par  - [dict of None]  parameters for algebraic system solver
-                 (is set by set_algss_par function)
-                 * it also contain some results of system solving
+                 * is set by set_sol0 function
+    tau        - [None] tt-accuracy for round-operations and cross-function
+    eps_lss    - [None] accuracy for linear system solver
+    tau_lss    - [None] tt-accuracy for round-operations for result of linear
+                 system solution (if is None, then the real accuracy will be used)
+    tau_real   - [None] tt-accuracy for construction of real (analytical)
+                 solution (if is None, then will be selected as tau * 1.E-2)
+                 * tau_* and eps_lss are set by set_tau function
 
                  Calculation results
                  * are set by solver in auto mode after calculation
-                 * function clean set default values for all this variables
-                 
-    a_erank      - [None] TT-erank of matrix A in A x = rhs
-    rhs_erank    - [None] TT-erank of vector rhs in A x = rhs
-                   * Some additional eranks are also saved: id_erank, d_erank,
-                     iq.erank, q_erank, f_erank, w_erank, r_erank, h_erank
-                     (some of them may be None for some kinds of solvers,
-                     otherwise, all of them, except f_erank,
-                     are lists of dim-length)
+                 * function clean set default values for this variables
+
     u_calc       - [None] calculated solution of the PDE
-    u_calc_ranks - [None] ranks or u_real
-    u_calc_erank - [None] TT-erank or u_real 
+    u_calc_ranks - [None] ranks or u_calc
     u_real       - [None] exact (analitical) solution of the PDE
-    u_real_ranks - [None] ranks or u_real 
-    u_real_erank - [None] TT-erank or u_real     
-    u_err        - [None] is the norm of the u calculation's error       
-    ud_calc      - [None] calculated derivatives of the solution (list)
-    ud_real      - [None] exact (analitical) derivatives of the solution (list)
-    ud_err       - [None] is the norm of the du calculation's error (list)   
-    en_calc      - [None] energy h^2 * sum( (K_i ud_calc[i], K_i) )
-    en_real      - [None] energy h^2 * sum( (K_i ud_real[i], K_i) )
-    en_err       - [None] error of the calculated energy
+    u_real_ranks - [None] ranks or u_real      
+    u_err        - [None] is the norm of the u calculation's error  
+     
+    ux_calc      - [None] calculated derivative du/dx of the solution
+    ux_real      - [None] exact (analitical) derivative du/dx of the solution
+    ux_err       - [None] is the norm of the du/dx calculation's error
+    ... the same for uy and uz ...
+    
+    uu_calc      - [None] product (u_calc, u_calc)
+    uu_real      - [None] product (u_real, u_real)
+    uu_err       - [None] error of the calculated value of uu_calc   
+    
     uf_calc      - [None] product (u_calc, f)
     uf_real      - [None] product (u_real, f)
     uf_err       - [None] error of the calculated value of uf_calc
-    uu_calc      - [None] product (u_calc, u_calc)
-    uu_real      - [None] product (u_real, u_real)
-    uu_err       - [None] error of the calculated value of uu_calc
-    t_full       - [None] full time of the calculation 
-    t            - [dict of None] is dictionary with times of calc. operations
+    
+    t_full       - [None] full time of the Solver work
+    r            - [dict of None] is dictionary with eranks of the main arrays
+    t            - [dict of None] is dictionary with times of solution steps
     
                  Functions
                  
+    set_grd        - set spatial grid class instance
+                     * Default grid is set automatically
+    set_lss        - set linear system solver class instance
+                     * Default linear system solver is set automatically
+    set_lss_params - set parameters for linear system solver
+                     * Default parameters are set automatically
     set_solver_txt - set solver_txt
-    update_d       - set a given value of d and recalculate n and h values
-    set_verb       - verb_gen, verb_cross and verb_amen
+    set_verb       - set verb_gen, verb_crs and verb_lss
     set_sol0       - set sol0
-    set_with_en    - set with_en mode
-    set_tau        - construct all tt-accuracies according current
-                     understanding of dependencies by a few given values
-                     * taus are saved in Tau class instance
-    set_algss_par  - set parameters for algebraic system solver
-                     * parameters are saved in AlgssPar class instance
+    set_tau        - set all tt-accuracies
+    update_d       - set a given value of d, recalculate n and h values               
     clean          - remove all calculation results (set None-values)
     present_info   - present parameters of the calculation in full text mode
     present_res_1s - present calculation results in one string mode
@@ -95,20 +96,70 @@ class Pde(ModelPde):
     copy           - copy parameters and calc results to a new Pde instanсe 
                      * functions and arrays are not copied by default
     '''
-    def __init__(self):
+    
+    def __init__(self, GRD=None, LSS=None):
         ModelPde.__init__(self)
+        self.set_grd(GRD)
+        self.set_lss(LSS)
+        self.set_lss_params()
         self.set_solver_txt(None)
-        self.update_d()
         self.set_verb(False, False, False)
         self.set_sol0(None)
-        self.set_with_en(False)
-        self.tau = Tau()
-        self.algss_par = AlgssPar()
-        self.t = Time()
+        self.set_tau()
+        self.update_d()
         self.clean()
 
+    @property
+    def t_full(self):
+        t = 0
+        if self.t['cgen'] is not None:
+            t+= self.t['cgen']
+        if self.t['mgen'] is not None:
+            t+= self.t['mgen']
+        if self.t['sgen'] is not None:
+            t+= self.t['sgen']
+        if self.t['soln'] is not None:
+            t+= self.t['soln'] 
+        if t==0:
+            t = None
+        return t
+         
+    def set_grd(self, GRD=None):
+        if GRD is not None:
+            self.GRD = GRD
+        else:
+            self.GRD = Grid()
+            
+    def set_lss(self, LSS=None):
+        if LSS is not None:
+            self.LSS = LSS
+        else:
+            self.LSS = LinSystSolver()
+            
+    def set_lss_params(self, nswp=20, kickrank=4, local_prec='n', local_iters=2,
+                      local_restart=40, trunc_norm=1, max_full_size=50):  
+        self.LSS.set_params(nswp, kickrank, local_prec, local_iters,
+                            local_restart, trunc_norm, max_full_size)
+        
     def set_solver_txt(self, solver_txt):
         self.solver_txt = solver_txt
+        
+    def set_verb(self, verb_gen, verb_crs, verb_lss):
+        self.verb_gen = verb_gen
+        self.verb_crs = verb_crs
+        self.verb_lss = verb_lss
+        
+    def set_sol0(self, sol0):
+        self.sol0 = sol0
+                    
+    def set_tau(self, tau=1.E-10, eps_lss=1.E-10, tau_lss=None, tau_real=None):
+        self.tau = tau
+        self.eps_lss = eps_lss
+        self.tau_lss = tau_lss
+        if tau_real is not None:
+            self.tau_real = tau_real
+        else:
+            self.tau_real = tau * 1.E-2
         
     def update_d(self, d=None):
         if d is not None:
@@ -117,53 +168,31 @@ class Pde(ModelPde):
             self.h = self.L/self.n
         else:
             self.d, self.n, self.h = None, None, None
-            
-    def set_verb(self, verb_gen, verb_cross, verb_amen):
-        self.verb_gen   = verb_gen
-        self.verb_cross = verb_cross
-        self.verb_amen  = verb_amen
         
-    def set_sol0(self, sol0):
-        self.sol0 = sol0
-            
-    def set_with_en(self, with_en):
-        self.with_en = with_en
-        
-    def set_tau(self, tau_round=1.E-10, tau_cross=1.E-10, tau_amens=1.E-5):
-        self.tau.set_by_main(tau_round, tau_cross, tau_amens)                      
-        self.algss_par.set('tau', self.tau['solve']['round'])
-        
-    def set_algss_par(self, nswp=20, kickrank=4, local_prec='n', local_iters=2,
-                      local_restart=40, trunc_norm=1, max_full_size=50,
-                      tau_u_calc_from_algss=True):   
-        self.algss_par.set('nswp', nswp)
-        self.algss_par.set('kickrank', kickrank)
-        self.algss_par.set('local_prec', local_prec)
-        self.algss_par.set('local_iters', local_iters)
-        self.algss_par.set('local_restart', local_restart)
-        self.algss_par.set('trunc_norm', trunc_norm)
-        self.algss_par.set('max_full_size', max_full_size)
-        self.algss_par.set('tau', self.tau['solve']['round'])
-        self.algss_par.set('tau_u_calc_from_algss', tau_u_calc_from_algss)
-
     def clean(self):
-        self.algss_par.clean_out()
-        self.t.clean()
-
-        self.id_erank, self.d_erank   = None, None
-        self.iq_erank, self.q_erank   = None, None
-        self.f_erank,  self.w_erank   = None, None
-        self.r_erank,  self.h_erank   = None, None
-        self.a_erank,  self.rhs_erank = None, None
+        self.GRD.clean()
+        self.LSS.clean()
+        self.t = dict.fromkeys(['cgen', 'mgen', 'sgen', 'soln', 'prep'])
+        self.r = dict.fromkeys(['f', 'Bx', 'By', 'Bz', 'iBx', 'iBy', 'iBz',
+                                'iKx', 'iKy', 'iKz', 'Kx', 'Ky', 'Kz',
+                                'iqx', 'iqy', 'iqz', 'qx', 'qy', 'qz',
+                                'Wx', 'Wy', 'Wz', 'Rx', 'Ry', 'Rz', 
+                                'Hx', 'Hy', 'Hz', 'u_calc', 'u_real',
+                                'ux_calc', 'uy_calc', 'uz_calc',
+                                'ux_real', 'uy_real', 'uz_real',
+                                'wx_calc', 'wy_calc', 'A', 'rhs'])
         
+        self.u_real, self.u_real_ranks = None, None
+        self.u_calc, self.u_calc_ranks = None, None
         self.u_err = None
-        self.u_calc, self.u_calc_ranks, self.u_calc_erank = None, None, None
-        self.u_real, self.u_real_ranks, self.u_real_erank = None, None, None
-        self.ud_calc, self.ud_real, self.ud_err = None, None, None
-        self.en_calc, self.en_real, self.en_err = None, None, None
-        self.uf_real, self.uf_calc, self.uf_err = None, None, None
-        self.uu_real, self.uu_calc, self.uu_err = None, None, None
         
+        self.ux_real, self.uy_real, self.uz_real = None, None, None
+        self.ux_calc, self.uy_calc, self.uz_calc = None, None, None
+        self.ux_err , self.uy_err , self.uz_err  = None, None, None
+
+        self.uu_real, self.uu_calc, self.uu_err  = None, None, None
+        self.uf_real, self.uf_calc, self.uf_err  = None, None, None
+   
     def present_info(self):
         self._present(compose_info(self))  
         
@@ -176,9 +205,32 @@ class Pde(ModelPde):
     def plot_res(self):
         plot(self)
         
-    def copy(self, with_u_real=False, with_u_calc=False):
-        return copy(self, with_u_real, with_u_calc)
-        
-    @property
-    def t_full(self):
-        return self.t.get_full()
+    def copy(self, with_u_real =False, with_u_calc =False,
+                   with_ux_real=False, with_ux_calc=False,
+                   with_uy_real=False, with_uy_calc=False,
+                   with_uz_real=False, with_uz_calc=False):
+        PDE_tmp = deepcopy(self)
+        if not with_u_real:
+            PDE_tmp.u_real = None
+        if not with_u_calc:
+            PDE_tmp.u_calc = None
+        if not with_ux_calc:
+            PDE_tmp.ux_calc = None
+        if not with_ux_real:
+            PDE_tmp.ux_real = None
+        if not with_uy_calc:
+            PDE_tmp.uy_calc = None
+        if not with_uy_real:
+            PDE_tmp.uy_real = None
+        if not with_uz_calc:
+            PDE_tmp.uz_calc = None
+        if not with_uz_real:
+            PDE_tmp.uz_real = None
+        PDE_tmp.sol0 = None
+        PDE_tmp.f    = None
+        PDE_tmp.k    = None
+        PDE_tmp.u    = None
+        PDE_tmp.ux   = None
+        PDE_tmp.uy   = None
+        PDE_tmp.uz   = None    
+        return PDE_tmp

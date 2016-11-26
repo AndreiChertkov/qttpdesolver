@@ -2,61 +2,25 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ...utils.general import MODE_TT
-
 def plot(PDE):
-    plot_u(PDE)
+    _plot(PDE.u_real, PDE.u_calc, PDE.dim, txt_title='PDE solution u')
     if PDE.dim>=1:
-        plot_u_der(PDE, 0, 'Derivative-x of PDE solution u')
+        _plot(PDE.ux_real, PDE.ux_calc, PDE.dim, txt_title='Derivative-x of PDE solution u')
     if PDE.dim>=2:
-        plot_u_der(PDE, 1, 'Derivative-y of PDE solution u')
+        _plot(PDE.uy_real, PDE.uy_calc, PDE.dim, txt_title='Derivative-y of PDE solution u')
     if PDE.dim>=3:
-        plot_u_der(PDE, 2, 'Derivative-z of PDE solution u')
-        
-def plot_u(PDE):
-    _plot(PDE.n, PDE.dim, PDE.u_real, PDE.u_calc, PDE.mode, 'PDE solution u')
+        _plot(PDE.uz_real, PDE.uz_calc, PDE.dim, txt_title='Derivative-z of PDE solution u')
     
-def plot_u_der(PDE, num, name):
-    if isinstance(PDE.ud_real, list) and len(PDE.ud_real)>num:
-        ud_real = PDE.ud_real[num]
-    else:
-        ud_real = None
-    if isinstance(PDE.ud_calc, list) and len(PDE.ud_calc)>num:
-        ud_calc = PDE.ud_calc[num]
-    else:
-        ud_calc = None
-    _plot(PDE.n, PDE.dim, ud_real, ud_calc, PDE.mode, name)
-    
-def _plot(n, dim, u_real, u_calc, mode, txt_title=''):
-    if u_real is not None:
-        if mode != MODE_TT:
-            ur = u_real.copy()
-        else:
-            ur = u_real.full().flatten('F')
-    else:  
-        ur = None
-        
-    if u_calc is not None:
-        if mode != MODE_TT:
-            uc = u_calc.copy()
-        else:
-            uc = u_calc.full().flatten('F')
-    else:  
-        uc = None
-           
+def _plot(ur, uc, dim, txt_title=''):
+    if ur is not None and ur.isnotnone:
+        ur = ur.to_np.reshape(tuple([2**(ur.d/dim)]*dim), order='F')
+    if uc is not None and uc.isnotnone:
+        uc = uc.to_np.reshape(tuple([2**(uc.d/dim)]*dim), order='F')
     if dim==1:
         plot_1d(ur, uc, txt_title)
     if dim==2:
-        if ur is not None:
-            ur = ur.reshape((n, n), order='F')
-        if uc is not None:
-            uc = uc.reshape((n, n), order='F')
         plot_2d(ur, uc, txt_title)
     if dim==3:
-        if ur is not None:
-            ur = ur.reshape((n, n, n), order='F')
-        if u_calc is not None:
-            uc = uc.reshape((n, n, n), order='F')
         plot_3d(ur, uc, txt_title)
         
 def plot_1d(u_real=None, u_calc=None, txt_title='PDE solution'):
@@ -70,9 +34,7 @@ def plot_1d(u_real=None, u_calc=None, txt_title='PDE solution'):
     plt.legend(loc="best"); plt.show()
 
 def plot_2d(u_real=None, u_calc=None, txt_title='PDE solution'):
-    if u_calc is None and u_real is None:
-        return
-    elif u_calc is not None and u_real is not None:
+    if u_calc is not None and u_real is not None:
         fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(12, 4)) 
     elif u_calc is not None and u_real is None:
         fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(8, 4))  
