@@ -82,15 +82,24 @@ class CaptureAmen(Capture):
         
     @property
     def max_dx(self):
-        return float(self.out[-1].split('max_dx= ')[1].split(',')[0])
+        try:
+            return float(self.out[-1].split('max_dx= ')[1].split(',')[0])
+        except:
+            return None
         
     @property
     def max_res(self):
-        return float(self.out[-1].split('max_res= ')[1].split(',')[0])
+        try:
+            return float(self.out[-1].split('max_res= ')[1].split(',')[0])
+        except:
+            return None
         
     @property
     def max_rank(self):
-        return int(self.out[-1].split('max_rank=')[1])
+        try:
+            return int(self.out[-1].split('max_rank=')[1])
+        except:
+            return None
           
     def present(self, verb):
         if not verb:
