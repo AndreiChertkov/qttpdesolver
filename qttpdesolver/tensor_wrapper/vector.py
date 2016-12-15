@@ -51,6 +51,8 @@ class Vector(TensorBase):
         res.mode = MODE_NP
         if self.mode == MODE_TT and self.isnotnone:
             res.x = self.x.full().flatten('F')
+        elif self.isnotnone:
+            res.x = self.x.copy()
         return res
     
     def diag(self):
@@ -133,6 +135,33 @@ class Vector(TensorBase):
             res.x = tt.tensor.from_list(Gl)
         return res
    
+    def outer(self, v):
+        '''
+        Construct outer vector product u.dot(v^T) there v=self.
+        '''
+        if not isinstance(v, Vector) or self.isnone or v.isnone \
+           or self.mode != v.mode or self.d != v.d:
+            raise ValueError('Incorrect input.')
+        from matrix import Matrix
+        res = Matrix(None, self.d, self.mode, self.tau, False)
+        if self.mode == MODE_NP:
+            res.x = np.outer(self.x, v.x)
+        if self.mode == MODE_TT:
+            GG = tt.vector.to_list(self.x)
+            for i in range(self.d):
+                r0, n, r1 = GG[i].shape
+                GG[i] = GG[i].reshape((r0, n, 1, r1))
+            u1 = tt.matrix.from_list(GG)
+            GG = tt.vector.to_list(v.x)
+            for i in range(self.d):
+                r0, n, r1 = GG[i].shape
+                GG[i] = GG[i].reshape((r0, 1, n, r1))   
+            v1 = tt.matrix.from_list(GG)
+            res.x = u1 * v1
+        if self.mode == MODE_SP:
+            raise ValueError('It is not work for MODE_SP.')
+        return res.round([self.tau, v.tau])
+        
     def inv(self, v0=None, verb=False, name=DEF_VECTOR_NAME):
         ''' 
         Return inverse to the vector.

@@ -67,11 +67,13 @@ class Matrix(TensorBase):
     
     def full(self):
         res = self.copy(copy_x=False)
-        res.mode = MODE_NP
+        if self.mode == MODE_NP and self.isnotnone:
+            res.x = self.x.copy()
         if self.mode == MODE_TT and self.isnotnone:
             res.x = self.x.full()
         if self.mode == MODE_SP and self.isnotnone:
             res.x = self.x.toarray()
+        res.mode = MODE_NP
         return res
                 
     def diag(self):
@@ -113,6 +115,25 @@ class Matrix(TensorBase):
             res.x = tt.matvec(self.x, other.x)
             res = res.round([self.tau, other.tau])
         return res
+        
+    def __mul__(self, other):
+        res = self.copy(copy_x=False)
+        if isinstance(other, (int, float)) and self.isnotnone:
+            res.x = self.x * other
+            return res
+        if self.isnone or other.isnone or self.mode != other.mode or self.d != other.d:
+            raise ValueError('Incorrect input.')
+        if self.mode == MODE_NP or self.mode == MODE_SP:
+            res.x = self.x * other.x
+        if self.mode == MODE_TT:
+            a = tt.vector.from_list([G.reshape((G.shape[0], 4, G.shape[-1])) 
+                                     for G in tt.matrix.to_list(self.x)])
+            b = tt.vector.from_list([G.reshape((G.shape[0], 4, G.shape[-1])) 
+                                     for G in tt.matrix.to_list(other.x)])
+            C = tt.matrix.from_list([G.reshape((G.shape[0], 2, 2, G.shape[-1])) 
+                                     for G in tt.vector.to_list(a*b)])
+            res.x = C
+        return res.round([self.tau, other.tau])
         
     @staticmethod
     def unit(d, mode=MODE_NP, tau=None, i=0, j=0, val=1., name=DEF_MATRIX_NAME):

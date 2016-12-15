@@ -143,15 +143,6 @@ class TensorBase(object):
             raise ValueError('Incorrect input.')
         res.x = self.x - other.x
         return res.round([self.tau, other.tau])
-        
-    def __mul__(self, other):
-        res = self.copy(copy_x=False)
-        if isinstance(other, (int, float)) and self.isnotnone:
-            res.x = self.x * other
-            return res
-        if self.isnone or other.isnone or self.mode != other.mode or self.d != other.d:
-            raise ValueError('Incorrect input.')
-        raise NotImplementedError()
     
     def __rmul__(self, other):
         return self.__mul__(other)
