@@ -112,7 +112,6 @@ def create_solver(PDE):
         from .solver_fs.solver_fs_2d import SolverFS_2d
         return SolverFS_2d(PDE)
     if PDE.solver_txt==SOLVER_FS and PDE.dim==3:
-        raise NotImplementedError()
         from .solver_fs.solver_fs_3d import SolverFS_3d
         return SolverFS_3d(PDE)
     if PDE.solver_txt==SOLVER_FD and PDE.dim==1:

@@ -114,6 +114,35 @@ class Vector(TensorBase):
             res = res.round() 
         return res
 
+    def kron2e(self):
+        '''
+        Function construct special kron product for 3D FS-QTT-solver
+        '''
+        d = self.d/2
+        n = 2**d
+        from matrix import Matrix
+        res = Matrix(None, d*3, self.mode, self.tau, False)
+        if self.mode == MODE_NP or self.mode == MODE_SP:
+            from scipy.linalg import block_diag as sp_block_diag
+            blocks = []
+            for i in xrange(n):
+                blocks.append(np.kron(np.ones((n, n)),
+                                      np.diag(self.x[n*i: n*(i+1)])))
+            res.x = sp_block_diag(*blocks) 
+        else:
+            GG = tt.matrix.to_list(self.diag().x)
+            for j in range(d):
+                i = d
+                r = GG[i-1].shape[-1]
+                GGnew = np.zeros((r, 2, 2, r))
+                GGnew[:, 0, 0, :] = np.eye(r)
+                GGnew[:, 1, 0, :] = np.eye(r)
+                GGnew[:, 0, 1, :] = np.eye(r)
+                GGnew[:, 1, 1, :] = np.eye(r)
+                GG.insert(i, GGnew)
+            res.x = tt.matrix.from_list(GG)
+        return res
+        
     def half(self, ind):
         ''' 
         Get a first (ind=0) or second (ind=1) half of array.
@@ -270,7 +299,7 @@ class Vector(TensorBase):
     @staticmethod
     def block(vlist, name=DEF_VECTOR_NAME):
         '''
-        Concatenate vectors from a list. All vectors must have the same size..
+        Concatenate vectors from a list. All vectors must have the same size.
         List may contain some (not all!) int/float or None entries,
         that will be filled by zero-vectors.
         '''

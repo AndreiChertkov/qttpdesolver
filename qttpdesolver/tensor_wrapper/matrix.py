@@ -208,21 +208,22 @@ class Matrix(TensorBase):
         res = None
         if not isinstance(mlist, list):
             raise ValueError('This should be a list.')
-        d0 = _n2d(len(mlist))   
+        d0 = _n2d(len(mlist)) 
+        n0 = 2**d0
         for i, mrow in enumerate(mlist):
             if not isinstance(mrow, list):
                 raise ValueError('List of lists should contain only lists.')
-            if not 2**d0 == len(mrow):
+            if not n0 == len(mrow):
                 raise ValueError('The length of the list and sub-lists should be equal.')  
             for j, m in enumerate(mrow):
                 if (m is None or isinstance(m, (int, float))) or \
                    (isinstance(m, Matrix) and m.isnone):
                     continue
                 e = Matrix.unit(d0, m.mode, m.tau, i, j)
-            if res is None:
-                res = e.kron(m)
-            else:
-                res+= e.kron(m)
+                if res is None:
+                    res = e.kron(m)
+                else:
+                    res+= e.kron(m)
         res.name = name
         return res 
             

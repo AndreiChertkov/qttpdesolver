@@ -33,13 +33,10 @@ class SolverFS_3d(Solver):
         self.qx = self.iqx.inv(v0=None, verb=verb, name = 'qx')
         self.qy = self.iqy.inv(v0=None, verb=verb, name = 'qy')
         self.qz = self.iqz.inv(v0=None, verb=verb, name = 'qz')
-        
-        #TODO! Correct this formulas:
-        raise NotImplementedError()
-        
+
         E = Matrix.ones(d, mode, tau)
         self.Wx = self.qx.diag().kron(E)
-        self.Wy = E.kron(self.qy.diag())
+        self.Wy = self.qy.kron2e()
         self.Wz = E.kron(self.qz.diag())
         
         I3 = Matrix.eye(d*dim, mode, tau)       
