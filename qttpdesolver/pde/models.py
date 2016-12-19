@@ -182,27 +182,29 @@ def set_model_3(PDE):
     PDE.f_txt = 'f  = -1'
     PDE.f = f_func
 
+    def u0(x):  
+        return 3./2./np.sqrt(2.) * (x - np.log(1.+x)/np.log(2.))
+        
+    def u0_der(x):
+        return 3./2./np.sqrt(2.) * (1. - 1./(1.+x)/np.log(2.))
+
+    def ksi(x1, C):
+        return 1./2./np.pi*np.arctan( np.tan(2.*np.pi*x1)/np.sqrt(2.) )-x1+C
+     
+    def ksi_der(x1):
+        c = np.cos(2.*np.pi*x1)
+        return np.sqrt(2.)/(1.+c*c)-1.
+            
     def u_func(x, e):
         # u0: exact homogenized solution
-        # second order u0(x) + e*u1(x, x/e), u1(x,y) = ksi(y)*u0_der(x)
-        return 3./2./np.sqrt(2.) * (x - np.log(1.+x)/np.log(2.))
+        # second order u0(x) + e*u1(x, x/e), u1(x,y) = ksi(y)*u0_der(x)   
+        return u0(x) + e*ksi(x/e, 0.)*u0_der(x)
         
     PDE.u_txt = 'u  = ... Exact homogenized solution (is known)'
     PDE.u = u_func
     
     def ux_func(x, e):
         # du/dx
-    
-        def u0_der(x):
-            return 3./2./np.sqrt(2.) * (1. - 1./(1.+x)/np.log(2.))
-            
-        def ksi(x1, C):
-            return 1./2./np.pi*np.arctan( np.tan(2.*np.pi*x1)/np.sqrt(2.) )-x1+C
-    
-        def ksi_der(x1):
-            c = np.cos(2.*np.pi*x1)
-            return np.sqrt(2.)/(1.+c*c)-1.
-    
         return u0_der(x) * (1.+ksi_der(x/e))
 
     PDE.ux_txt = 'ux = ... From homogenized solution and 1th order appr (is known)'
