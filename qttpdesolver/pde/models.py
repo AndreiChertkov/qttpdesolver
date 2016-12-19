@@ -198,7 +198,7 @@ def set_model_3(PDE):
     def u_func(x, e):
         # u0: exact homogenized solution
         # second order u0(x) + e*u1(x, x/e), u1(x,y) = ksi(y)*u0_der(x)   
-        return u0(x) + e*ksi(x/e, 0.)*u0_der(x)
+        return u0(x) #+ e*ksi(x/e, 0.)*u0_der(x)
         
     PDE.u_txt = 'u  = ... Exact homogenized solution (is known)'
     PDE.u = u_func
