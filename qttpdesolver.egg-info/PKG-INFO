@@ -1,0 +1,47 @@
+Metadata-Version: 1.1
+Name: qttpdesolver
+Version: 0.1
+Summary: Fast solver for partial differential equations based on low rank quantized tensor train decomposition, that can operate on huge grids.
+Home-page: https://github.com/AndreChertkov/qttpdesolver
+Author: Ivan Oseledets, Andrei Chertkov
+Author-email: ivan.oseledets@gmail.com, andrey.mipt@mail.ru
+License: UNKNOWN
+Download-URL: https://github.com/AndreChertkov/qttpdesolver
+Description: qttpdesolver
+        ============
+        
+        1. Description
+          Package qttpdesolver is a fast solver for partial differential equations,
+          based on the new robust discretization scheme and on the low rank quantized
+          tensor train decomposition (QTT-decomposition), that can operate on huge grids.
+        
+        2. Requirements
+          ttpy python package (https://github.com/oseledets/ttpy)
+        
+        3. Installation
+          python setup.py install
+          
+        4. Examples
+          See "./examples/api_basic_*.ipynb" for API details.
+          See over examples from "./examples/" folder for more details.
+          
+        5. Tests
+          Type in console (from the root of the package) "python ./tests/test_all.py"
+          to perform all tests (-v option is available).
+        
+        6. Authors
+          Ivan V. Oseledets  (ivan.oseledets@gmail.com)
+          Andrei V. Chertkov (andrey.mipt@mail.ru)
+        
+        7. Related publications
+          [1] I. V. Oseledets, M. V. Rakhuba, A. V. Chertkov, Black-box solver for multiscale modelling using the QTT format, in: Proc. ECCOMAS, Crete Island, Greece, 2016.
+              URL https://www.eccomas2016.org/proceedings/pdf/10906.pdf
+Keywords: tensor train,diffusion equation,pde,solver,qtt-decomposition
+Platform: UNKNOWN
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Topic :: Solvers
+Requires: python (>= 2.7)

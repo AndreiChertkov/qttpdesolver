@@ -18,40 +18,40 @@ class TestDiffusion3DBase(unittest.TestCase):
                                 local_restart=20, trunc_norm=1, max_full_size=100)
         self.PDE.update_d(3)
 
-#class TestDiffusion3D_fs(TestDiffusion3DBase):
-#    ''' Test of PDE solution result for Solver-FS.  '''
-#    
-#    def setUp(self):
-#        TestDiffusion3DBase.setUp(self)
-#        self.PDE.set_solver_txt(SOLVER_FS)
-#   
-#    def test_np(self):
-#        self.PDE.set_mode(MODE_NP)
-#        auto_solve(self.PDE, present_res_1s=False)
-#
-#        self.assertTrue(self.PDE.u_err  < 1.16e-01)
-#        self.assertTrue(self.PDE.ux_err < 8.66e-02)
-#        self.assertTrue(self.PDE.uy_err < 5.36e-02)
-#        self.assertTrue(self.PDE.uz_err < 4.76e-02)
-#
-#    def test_tt(self):
-#        self.PDE.set_mode(MODE_TT)
-#        auto_solve(self.PDE, present_res_1s=False)
-#
-#        self.assertTrue(self.PDE.u_err  < 1.16e-01)
-#        self.assertTrue(self.PDE.ux_err < 8.66e-02)
-#        self.assertTrue(self.PDE.uy_err < 5.36e-02)
-#        self.assertTrue(self.PDE.uz_err < 4.76e-02)
-#        
-#    def test_sp(self):
-#        ''' For Solver FS MODE_SP should be not available.  '''
-#        self.PDE.set_mode(MODE_SP)
-#        raised = False
-#        try:
-#            auto_solve(self.PDE, present_res_1s=False)
-#        except:
-#            raised = True
-#        self.assertTrue(raised)
+class TestDiffusion3D_fs(TestDiffusion3DBase):
+    ''' Test of PDE solution result for Solver-FS.  '''
+    
+    def setUp(self):
+        TestDiffusion3DBase.setUp(self)
+        self.PDE.set_solver_txt(SOLVER_FS)
+   
+    def test_np(self):
+        self.PDE.set_mode(MODE_NP)
+        auto_solve(self.PDE, present_res_1s=False)
+
+        self.assertTrue(self.PDE.u_err  < 1.16e-01)
+        self.assertTrue(self.PDE.ux_err < 8.66e-02)
+        self.assertTrue(self.PDE.uy_err < 5.36e-02)
+        self.assertTrue(self.PDE.uz_err < 4.76e-02)
+
+    def test_tt(self):
+        self.PDE.set_mode(MODE_TT)
+        auto_solve(self.PDE, present_res_1s=False)
+
+        self.assertTrue(self.PDE.u_err  < 1.16e-01)
+        self.assertTrue(self.PDE.ux_err < 8.66e-02)
+        self.assertTrue(self.PDE.uy_err < 5.36e-02)
+        self.assertTrue(self.PDE.uz_err < 4.76e-02)
+        
+    def test_sp(self):
+        ''' For Solver FS MODE_SP should be not available.  '''
+        self.PDE.set_mode(MODE_SP)
+        raised = False
+        try:
+            auto_solve(self.PDE, present_res_1s=False)
+        except:
+            raised = True
+        self.assertTrue(raised)
         
 class TestDiffusion3D_fd(TestDiffusion3DBase):
     ''' Test of PDE solution result for Solver-FD.  '''
