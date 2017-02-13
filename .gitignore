@@ -1,0 +1,14 @@
+*.pyc
+.DS*
+.gitignore~
+.ipynb_checkpoints
+*.aux
+*.log
+*.out
+*.pdf
+*.bbl
+*.blg
+*synctex.gz*
+*.egg-info
+build
+dist
