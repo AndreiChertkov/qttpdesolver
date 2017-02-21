@@ -404,3 +404,73 @@ def set_model_11(PDE):
 
     PDE.params = [np.pi/PDE.L * 2, np.pi/PDE.L * 3]
     PDE.params_txt = 'w1 [=%-8.4f], w2 [=%-8.4f]'
+    
+
+models_txt.append('-div(grad u) = f in [0, 1]; u(0) = u(1); u is known')
+models_names.append('Simple. Analyt 1D periodic Poisson PDE')
+def set_model_12(PDE):
+    PDE.txt = models_txt[12]
+    PDE.dim = 1; PDE.L = 1.
+    
+    def k_func(x , w1):
+        return np.ones(x.shape)
+
+    PDE.k_txt = 'k  = 1'
+    PDE.k = k_func
+
+    def f_func(x, w1):
+        return np.sin(w1*x)
+
+    PDE.f_txt = 'f  = sin(w_1 x)'
+    PDE.f = f_func
+
+    def u_func(x, w1):
+        return np.sin(w1*x)/w1/w1
+
+    PDE.u_txt = 'u  = sin(w_1 x) / w1^2'
+    PDE.u = u_func
+
+    def ux_func(x, w1):
+        return np.cos(w1*x)/w1
+        
+    PDE.ux_txt = 'ux = cos(w_1 x) / w1'
+    PDE.ux = ux_func
+    
+    PDE.params = [np.pi/PDE.L * 2]
+    PDE.params_txt = 'w1 [=%-8.4f]'
+    
+models_txt.append('-div(k grad u) = f in [0, 1]; u(0) = u(1); u is known')
+models_names.append('Simple. Analyt 1D periodic PDE')
+def set_model_13(PDE):
+    PDE.txt = models_txt[12]
+    PDE.dim = 1; PDE.L = 1.
+    
+    def k_func(x , w1):
+        return 1. + x
+
+    PDE.k_txt = 'k  = 1 + x'
+    PDE.k = k_func
+
+    def f_func(x, w1):
+        return 0.5 - x
+
+    PDE.f_txt = 'f  = 0.5 - x'
+    PDE.f = f_func
+
+    def u_func(x, w1):
+        A = 3./4./np.log(2.)
+        B = A - 13./12.
+        return x*x/4. + A*np.log(1.+x) - x + B
+
+    PDE.u_txt = 'u  = x^2/4 + A ln(1+x) - x + B'
+    PDE.u = u_func
+
+    def ux_func(x, w1):
+        A = 3./4./np.log(2.)
+        return x/2. + A/(1.+x) - 1.
+        
+    PDE.ux_txt = 'ux = x/2 + A / (1+x) - 1'
+    PDE.ux = ux_func
+    
+    PDE.params = [0.]
+    PDE.params_txt = 'w1 [=%-8.4f]'
