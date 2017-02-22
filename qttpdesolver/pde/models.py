@@ -406,7 +406,7 @@ def set_model_11(PDE):
     PDE.params_txt = 'w1 [=%-8.4f], w2 [=%-8.4f]'
     
 
-models_txt.append('-div(grad u) = f in [0, 1]; u(0) = u(1); u is known')
+models_txt.append('-div(grad u) = f in [0, 1]; u(0) = u(1); \int_0^1 u = 0')
 models_names.append('Simple. Analyt 1D periodic Poisson PDE')
 def set_model_12(PDE):
     PDE.txt = models_txt[12]
@@ -439,10 +439,10 @@ def set_model_12(PDE):
     PDE.params = [np.pi/PDE.L * 2]
     PDE.params_txt = 'w1 [=%-8.4f]'
     
-models_txt.append('-div(k grad u) = f in [0, 1]; u(0) = u(1); u is known')
+models_txt.append('-div(k grad u) = f in [0, 1]; u(0) = u(1); \int_0^1 u = 0')
 models_names.append('Simple. Analyt 1D periodic PDE')
 def set_model_13(PDE):
-    PDE.txt = models_txt[12]
+    PDE.txt = models_txt[13]
     PDE.dim = 1; PDE.L = 1.
     
     def k_func(x , w1):
@@ -470,6 +470,42 @@ def set_model_13(PDE):
         return x/2. + A/(1.+x) - 1.
         
     PDE.ux_txt = 'ux = x/2 + A / (1+x) - 1'
+    PDE.ux = ux_func
+    
+    PDE.params = [0.]
+    PDE.params_txt = 'w1 [=%-8.4f]'
+    
+models_txt.append('-div(k grad u) = f in [0, 1]; u(0) = u(1); \int_0^1 u = 0')
+models_names.append('Simple. Analyt 1D cell problem.')
+def set_model_14(PDE):  
+    PDE.txt = models_txt[14]
+    PDE.dim = 1; PDE.L = 1.
+    
+    def k_func(x , w1):
+        return (x-0.5)*(x-0.5) + 1.
+
+    PDE.k_txt = 'k  = (x-0.5)^2 + 1'
+    PDE.k = k_func
+
+    def f_func(x, w1):
+        return 2.*x-1.
+
+    PDE.f_txt = 'f  = 2x-1'
+    PDE.f = f_func
+
+    def u_func(x, w1):
+        c1 = 0.5/np.arctan(0.5)
+        c2 = 0.
+        return c1 * (np.arctan(x-0.5) + np.arctan(0.5)) - x + c2
+
+    PDE.u_txt = 'u  = c1*(arctan(x-0.5)+arctan(0.5)) - x'
+    PDE.u = u_func
+
+    def ux_func(x, w1):
+        c1 = 0.5/np.arctan(0.5)
+        return c1 / k_func(x , w1) - 1.
+        
+    PDE.ux_txt = 'ux = c1 / k - 1'
     PDE.ux = ux_func
     
     PDE.params = [0.]
