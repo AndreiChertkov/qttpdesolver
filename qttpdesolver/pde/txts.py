@@ -6,6 +6,7 @@ def compose_model(PDE):
     s = ''
     s+= _str('PDE:        ', PDE.txt)
     s+= _str('Parameters: ', PDE._params2str())
+    s+= _str('BC: ', PDE.bc)
     s+= _str('', PDE.k_txt)
     s+= _str('', PDE.f_txt)
     s+= _str('', PDE.u_txt)
@@ -20,6 +21,7 @@ def compose_res_1s(PDE):
     s+= _str('d=',       PDE.d,                    '%2d'   , '')
     s+= _str('|',        PDE.solver_txt,           '%-2s'  , '')
     s+= _str('-',        PDE.mode,                 '%-2s'  , '')
+    s+= _str('-',        PDE.bc,                   '%-2s'  , '')
     s+= _str('|er=',     PDE.u_err,                '%-8.1e', '')
     s+= _str('|erdx=',   PDE.ux_err,               '%-8.1e', '')
     s+= _str('|erdy=',   PDE.uy_err,               '%-8.1e', '')
@@ -38,6 +40,7 @@ def compose_res(PDE):
     s+= _str('PDE                : ', PDE.txt               , '%-s') 
     s+= _str('PDE mode           : ', PDE.mode              , '%-s')  
     s+= _str('Used PDE solver    : ', PDE.solver_txt        , '%-s') 
+    s+= _str('Boundary condition : ', PDE.bc                , '%-s') 
     s+= _str('PDE dimension      : ', PDE.dim               , '%-4d') 
     s+= _str('Value of d         : ', PDE.d                 , '%-4d') 
     s+= _str('Mesh 1D size       : ', PDE.n                 , '%-4d') 
@@ -66,6 +69,7 @@ def compose_info(PDE):
     s = '__________________General parameters\n'
     s+= _str('Mode          : ', PDE.mode              , '%-s')  
     s+= _str('Solver        : ', PDE.solver_txt        , '%-s')  
+    s+= _str('Boundary cond.: ', PDE.bc                , '%-s') 
     s+= _str('Model num     : ', PDE.model_num         , '%-2d')  
     s+= _str('Parameters    : ', PDE._params2str()     , '%-s')
     s+= '__________________Verbosity parameters\n'

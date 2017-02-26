@@ -29,6 +29,11 @@ class Pde(ModelPde):
     solver_txt - [None] name of the used PDE solver
                  * is set by set_solver_txt function
                  * available options: 'fs' (SOLVER_FS) and 'fd' (SOLVER_FD)
+    bc         - [BC_HD] is the type of boundary conditions
+                 * available options: 
+                     'hd' (BC_HD) - homogeneous Dirichlet,
+                     'pr' (BC_PR) - periodic
+                 * is set by set_bc function
     verb_gen   - [False] is the verbosity of general output (times and so on)
     verb_crs   - [False] is the verbosity of output for cross iterations
     verb_lss   - [False] is the verbosity of output for LSS iterations
@@ -143,6 +148,9 @@ class Pde(ModelPde):
         
     def set_solver_txt(self, solver_txt):
         self.solver_txt = solver_txt
+        
+    def set_bc(self, bc):
+        self.bc = bc
         
     def set_verb(self, verb_gen, verb_crs, verb_lss):
         self.verb_gen = verb_gen

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ..solver import Solver
+from ..solver import BC_HD, BC_PR, Solver
 from ...tensor_wrapper import Vector, Matrix
 
 class SolverFS_1d(Solver):
@@ -15,8 +15,16 @@ class SolverFS_1d(Solver):
                                verb, 'f')
 
     def _gen_matrices(self, d, n, h, dim, mode, tau, verb):
-        self.Bx = Matrix.volterra(d, mode, tau, h)
-
+        B = Matrix.volterra(d, mode, tau, h)
+        if self.PDE.bc == BC_PR:      
+            E = Matrix.ones(d, mode, tau)
+            B = B - h*(E.dot(B) + B.dot(E)) + h*(h+1)/2 * E
+            #from ...tensor_wrapper.matrix import toeplitz
+            #c = 1.5 + 0.5*h - h*np.arange(n+1, 2*n+1, 1.)
+            #r = 0.5 + 0.5*h - h*np.arange(n+1, 1, -1.)
+            #self.Bx = Matrix(h*toeplitz(c=c, r=r), d, mode, tau)
+        self.Bx = B
+        
     def _gen_system(self, d, n, h, dim, mode, tau, verb):
         pass
     

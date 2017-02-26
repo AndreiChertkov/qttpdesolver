@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ..solver import Solver
+from ..solver import BC_HD, BC_PR, Solver
 from ...tensor_wrapper import Vector, Matrix
 
 class SolverFS_2d(Solver):
@@ -18,7 +18,11 @@ class SolverFS_2d(Solver):
     
     def _gen_matrices(self, d, n, h, dim, mode, tau, verb):
         I = Matrix.eye(d, mode, tau)
+        
         B = Matrix.volterra(d, mode, tau, h)
+        if self.PDE.bc == BC_PR:      
+            E = Matrix.ones(d, mode, tau)
+            B = B - h*(E.dot(B) + B.dot(E)) + h*(h+1)/2 * E
         self.Bx = I.kron(B) 
         self.By = B.kron(I)  
 

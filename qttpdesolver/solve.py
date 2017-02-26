@@ -5,7 +5,7 @@ from numpy.linalg import norm
 from solvers.solver import create_solver
 from tensor_wrapper import Vector
 
-def auto_solve(PDE, PDESolver=None, present_res_1s=True, return_solver=False):
+def auto_solve(PDE, PDESolver=None, present_res_1s=True, return_solver=False, d=None):
     '''
     This function solve PDE, construct derivatives of the solution and some
     other quantities, and compare the results with the analytical values.
@@ -17,12 +17,15 @@ def auto_solve(PDE, PDESolver=None, present_res_1s=True, return_solver=False):
     present_res_1s  - [True] if is True, then calculation result will be
                       presented in a one string mode
     return_solver   - [False] if is True, then solver class instance 
-                      will be returned.
+                      will be returned
+    d               - [None] if is not None, then PDE d-factor will be updated
                     Output 
     PDESolver       - solver class instance (if return_solver==True)
     '''
     PDE.clean()
-    
+    if d is not None:
+        PDE.update_d(d)
+        
     if PDESolver is None:
         PDESolver = create_solver(PDE)   
     PDESolver.solve()

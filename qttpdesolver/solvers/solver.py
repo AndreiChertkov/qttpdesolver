@@ -2,6 +2,9 @@
 SOLVER_FS = 'fs'
 SOLVER_FD = 'fd'
 
+BC_HD = 'hd'
+BC_PR = 'pr'
+
 import time
 
 from ..tensor_wrapper import MODE_NP, MODE_TT, MODE_SP, Vector, Matrix
@@ -23,8 +26,10 @@ class Solver(object):
             raise ValueError('Incorrect name of the solver.')
         self.mode = self.PDE.mode
         if self.mode == MODE_SP and self.name == SOLVER_FS:
-           raise ValueError('MODE_SP is not available for Solver-FS.') 
-
+           raise ValueError('MODE_SP is not available for Solver-FS.')
+        if PDE.bc == BC_PR and self.name == SOLVER_FD:
+           raise ValueError('BC_PR is not available for Solver-FD.')
+           
     def clean(self):
         for name in ['f', 'rhs', 'wx', 'wy', 'u']:
             setattr(self, '%s'%(name), Vector())
