@@ -7,6 +7,8 @@ from plots import plot
 from txts import compose_res_1s, compose_res, compose_info
 from model_pde import ModelPde
 
+from ..solvers.solver import BC_HD
+
 class Pde(ModelPde):
     '''
     A container for PDE of the form -div(k grad u) = f.
@@ -108,6 +110,7 @@ class Pde(ModelPde):
         self.set_lss(LSS)
         self.set_lss_params()
         self.set_solver_txt(None)
+        self.set_bc(BC_HD)
         self.set_verb(False, False, False)
         self.set_sol0(None)
         self.set_tau()
@@ -201,8 +204,8 @@ class Pde(ModelPde):
         self.uu_real, self.uu_calc, self.uu_err  = None, None, None
         self.uf_real, self.uf_calc, self.uf_err  = None, None, None
    
-    def present_info(self):
-        self._present(compose_info(self))  
+    def present_info(self, full=False):
+        self._present(compose_info(self, full))  
         
     def present_res_1s(self):
         self._present(compose_res_1s(self))             
@@ -216,29 +219,80 @@ class Pde(ModelPde):
     def copy(self, with_u_real =False, with_u_calc =False,
                    with_ux_real=False, with_ux_calc=False,
                    with_uy_real=False, with_uy_calc=False,
-                   with_uz_real=False, with_uz_calc=False):
-        PDE_tmp = deepcopy(self)
-        if not with_u_real:
-            PDE_tmp.u_real = None
-        if not with_u_calc:
-            PDE_tmp.u_calc = None
-        if not with_ux_calc:
-            PDE_tmp.ux_calc = None
-        if not with_ux_real:
-            PDE_tmp.ux_real = None
-        if not with_uy_calc:
-            PDE_tmp.uy_calc = None
-        if not with_uy_real:
-            PDE_tmp.uy_real = None
-        if not with_uz_calc:
-            PDE_tmp.uz_calc = None
-        if not with_uz_real:
-            PDE_tmp.uz_real = None
-        PDE_tmp.sol0 = None
-        PDE_tmp.f    = None
-        PDE_tmp.k    = None
-        PDE_tmp.u    = None
-        PDE_tmp.ux   = None
-        PDE_tmp.uy   = None
-        PDE_tmp.uz   = None    
-        return PDE_tmp
+                   with_uz_real=False, with_uz_calc=False,
+                   with_grd=False, with_sol0=False, with_funcs=False):     
+        PDE = Pde()
+        PDE.out_file      = self.out_file
+        PDE.print_to_std  = self.print_to_std
+        PDE.print_to_file = self.print_to_file
+        PDE.set_dim(self.dim)
+        PDE.set_mode(self.mode)
+        PDE.model_num     = self.model_num
+        PDE.params        = deepcopy(self.params)
+        PDE.params_txt    = self.params_txt
+        PDE.txt           = self.txt
+        PDE.L             = self.L
+        PDE.k_txt         = self.k_txt
+        PDE.f_txt         = self.f_txt
+        PDE.u_txt         = self.u_txt
+        PDE.ux_txt        = self.ux_txt
+        PDE.uy_txt        = self.uy_txt
+        PDE.uz_txt        = self.uz_txt
+        if with_grd: PDE.GRD = self.GRD.copy()
+        PDE.LSS           = self.LSS.copy()
+        PDE.set_solver_txt(self.solver_txt)
+        PDE.set_bc(self.bc)
+        PDE.set_verb(self.verb_gen, self.verb_crs, self.verb_lss)
+        if with_sol0 and self.sol0: PDE.set_sol0(self.sol0.copy())
+        PDE.set_tau(self.tau, self.eps_lss, self.tau_lss, self.tau_real)
+        PDE.update_d(self.d)
+        PDE.t = deepcopy(self.t)
+        PDE.r = deepcopy(self.r)    
+        if with_u_real and self.u_real is not None: PDE.u_real = self.u_real.copy()
+        PDE.u_real_ranks = deepcopy(self.u_real_ranks)
+        if with_u_calc and self.u_calc is not None: PDE.u_calc = self.u_calc.copy()
+        PDE.u_calc_ranks = deepcopy(self.u_calc_ranks)
+        PDE.u_err = self.u_err      
+        if with_ux_real and self.ux_real is not None: PDE.ux_real = self.ux_real.copy()
+        if with_uy_real and self.uy_real is not None: PDE.uy_real = self.uy_real.copy()
+        if with_uz_real and self.uz_real is not None: PDE.uz_real = self.uz_real.copy()
+        if with_ux_calc and self.ux_calc is not None: PDE.ux_calc = self.ux_calc.copy()
+        if with_uy_calc and self.uy_calc is not None: PDE.uy_calc = self.uy_calc.copy()
+        if with_uz_calc and self.uz_calc is not None: PDE.uz_calc = self.uz_calc.copy()
+        PDE.ux_err  = self.ux_err
+        PDE.uy_err  = self.uy_err
+        PDE.uz_err  = self.uz_err
+        PDE.uu_real = self.uu_real
+        PDE.uu_calc = self.uu_calc
+        PDE.uu_err  = self.uu_err
+        PDE.uf_real = self.uf_real
+        PDE.uf_calc = self.uf_calc
+        PDE.uf_err  = self.uf_err
+        return PDE
+          
+#        PDE_tmp = deepcopy(self)
+#        if not with_u_real:
+#            PDE_tmp.u_real = None
+#        if not with_u_calc:
+#            PDE_tmp.u_calc = None
+#        if not with_ux_calc:
+#            PDE_tmp.ux_calc = None
+#        if not with_ux_real:
+#            PDE_tmp.ux_real = None
+#        if not with_uy_calc:
+#            PDE_tmp.uy_calc = None
+#        if not with_uy_real:
+#            PDE_tmp.uy_real = None
+#        if not with_uz_calc:
+#            PDE_tmp.uz_calc = None
+#        if not with_uz_real:
+#            PDE_tmp.uz_real = None
+#        if not with_funcs:
+#            PDE_tmp.sol0 = None
+#            PDE_tmp.f    = None
+#            PDE_tmp.k    = None
+#            PDE_tmp.u    = None
+#            PDE_tmp.ux   = None
+#            PDE_tmp.uy   = None
+#            PDE_tmp.uz   = None    
+#        return PDE_tmp

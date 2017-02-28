@@ -6,7 +6,7 @@ def compose_model(PDE):
     s = ''
     s+= _str('PDE:        ', PDE.txt)
     s+= _str('Parameters: ', PDE._params2str())
-    s+= _str('BC: ', PDE.bc)
+    s+= _str('BC        : ', PDE.bc)
     s+= _str('', PDE.k_txt)
     s+= _str('', PDE.f_txt)
     s+= _str('', PDE.u_txt)
@@ -21,7 +21,7 @@ def compose_res_1s(PDE):
     s+= _str('d=',       PDE.d,                    '%2d'   , '')
     s+= _str('|',        PDE.solver_txt,           '%-2s'  , '')
     s+= _str('-',        PDE.mode,                 '%-2s'  , '')
-    s+= _str('-',        PDE.bc,                   '%-2s'  , '')
+    s+= _str('|',        PDE.bc,                   '%-2s'  , '')
     s+= _str('|er=',     PDE.u_err,                '%-8.1e', '')
     s+= _str('|erdx=',   PDE.ux_err,               '%-8.1e', '')
     s+= _str('|erdy=',   PDE.uy_err,               '%-8.1e', '')
@@ -64,7 +64,7 @@ def compose_res(PDE):
     s+= _str('*Time: prep.   (s.): ', PDE.t['prep']         , '%-8.4f') 
     return s
 
-def compose_info(PDE):
+def compose_info(PDE, full=False):
     ''' Prepare string representation of the computation parameters.  '''
     s = '__________________General parameters\n'
     s+= _str('Mode          : ', PDE.mode              , '%-s')  
@@ -79,7 +79,7 @@ def compose_info(PDE):
     s+= _str('print_to_std  : ', PDE.print_to_std      , '%-r')
     s+= _str('print_to_file : ', PDE.print_to_file     , '%-r')
     s+= _str('out_file      : ', PDE.out_file          , '%-s')
-    if PDE.mode != MODE_TT:
+    if not full and PDE.mode != MODE_TT:
         return s
     s+= '__________________TT parameters\n'
     s+= _str('tau           : ', PDE.tau               , '%-8.2e')

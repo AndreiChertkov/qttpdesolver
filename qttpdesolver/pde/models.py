@@ -541,6 +541,27 @@ def set_model_15(PDE):
         return -1. * (kx*ux+k*uxx + ky*uy + k*uyy + kz*uz + k*uzz)
         
     PDE.k, PDE.f, PDE.u, PDE.ux, PDE.uy, PDE.uz = k_func, f_func, u_func, ux_func, uy_func, uz_func
+   
+models_txt.append('-div(k grad u) = f in [0, 1]^2; u 1-periodic; k - 2d multiscale coeff.') 
+models_names.append('Msc 2D diffusion periodic PDE')    
+def set_model_16(PDE):
+    PDE.txt = models_txt[16]
+    PDE.dim = 2; PDE.L = 1.; PDE.bc = BC_PR
+    
+    def k_func(x, y, e1, e2):
+        return 2. + np.sin(2.*np.pi*x/e1)*np.sin(2.*np.pi*y/e2)
+
+    PDE.k_txt = 'k  = 2. + sin(2 \pi x/e1)*sin(2 \pi y/e2)'
+    PDE.k = k_func
+
+    def f_func(x, y, e1, e2):
+        return -10.*np.sin(2.*np.pi*x)*np.cos(4.*np.pi*y)
+
+    PDE.f_txt = 'f  = -10.*sin(2 \pi x)*cos(4 \pi y)'
+    PDE.f = f_func
+
+    PDE.params = [1.E-2, 1.E-2]
+    PDE.params_txt = 'e1 [=%-10.2e], e2 [=%-10.2e]' 
     
 #models_txt.append('-div(k grad u) = f in [0, 1]; u 1 periodic; \int_0^1 u = 0')
 #models_names.append('Simple. Analyt 1D cell problem.')

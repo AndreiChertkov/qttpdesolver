@@ -45,3 +45,14 @@ class Grid(object):
             self.xr = e.kron(e).kron(r_right) 
             self.yr = e.kron(r_right).kron(e)   
             self.zr = r_right.kron(e).kron(e)
+            
+    def copy(self):
+        GRD = Grid()
+        GRD.set_params(self.d, self.h, self.dim, self.tau, self.mode)
+        if self.xc is not None: GRD.xc = self.xc.copy()
+        if self.yc is not None: GRD.yc = self.yc.copy()
+        if self.zc is not None: GRD.zc = self.zc.copy()
+        if self.xr is not None: GRD.xr = self.xr.copy()
+        if self.yr is not None: GRD.yr = self.yr.copy()
+        if self.zr is not None: GRD.zr = self.zr.copy()
+        return GRD

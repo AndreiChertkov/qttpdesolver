@@ -165,3 +165,12 @@ class LinSystSolver(CaptureAmen):
             self.solver = None
             raise ValueError('Incorect mode of the input.')
         return u
+        
+    def copy(self):
+        LSS = LinSystSolver()
+        LSS.out = self.out
+        LSS.solver = self.solver
+        LSS.set_params(self.nswp, self.kickrank, self.local_prec, 
+                       self.local_iters, self.local_restart, 
+                       self.trunc_norm, self.max_full_size)
+        return LSS
