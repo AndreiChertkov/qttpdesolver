@@ -53,6 +53,7 @@ class ModelPde(object):
 
                  Functions
 
+    set_print       - set print options
     set_dim         - set spatial dimension
     set_mode        - set mode of calculations
     set_model       - set PDE model via number or name (models.py will be used)
@@ -76,12 +77,15 @@ class ModelPde(object):
     '''
     
     def __init__(self):
-        self.out_file      = None
-        self.print_to_std  = True
-        self.print_to_file = False
+        self.set_print()
         self.set_dim(None)
         self.set_mode(None)
         self.set_model(None)
+        
+    def set_print(self, to_std=True, to_file=False, out_file=None):
+        self.print_to_std  = to_std
+        self.print_to_file = to_file
+        self.out_file      = out_file
         
     def set_dim(self, dim):
         self.dim = dim
@@ -152,7 +156,7 @@ class ModelPde(object):
         return str(self.params_txt%(tuple(self.params)))
         
     def _present(self, s):
-        ''' Print given string to std and/or to file according settings.  '''
+        ''' Print given string to std and/or to file according to settings.  '''
         if self.print_to_std:
             print s
         if self.print_to_file and self.out_file is not None:

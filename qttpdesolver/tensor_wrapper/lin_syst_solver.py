@@ -30,7 +30,7 @@ class Capture(object):
         self.clean()
         
     def clean(self):
-        self.out = u''
+        self.out = []
         
     def start_capture(self):
         self._org = sys.stdout

@@ -30,11 +30,13 @@ class Pde(ModelPde):
                  * Domain size may be only L=1
     solver_txt - [None] name of the used PDE solver
                  * is set by set_solver_txt function
-                 * available options: 'fs' (SOLVER_FS) and 'fd' (SOLVER_FD)
+                 * available options: 
+                     'fs' (SOLVER_FS) - finite sum solver,
+                     'fd' (SOLVER_FD) - finite difference solver
     bc         - [BC_HD] is the type of boundary conditions
                  * available options: 
                      'hd' (BC_HD) - homogeneous Dirichlet,
-                     'pr' (BC_PR) - periodic
+                     'pr' (BC_PR) - periodic with zero integral of solution
                  * is set by set_bc function
     verb_gen   - [False] is the verbosity of general output (times and so on)
     verb_crs   - [False] is the verbosity of output for cross iterations
@@ -42,15 +44,17 @@ class Pde(ModelPde):
                  * verb_* are set by set_verb function
                  * verb_* are for Solver's output verbosity only
     sol0       - [None] initial guess for solution of linear system:
-                 for solver_fs - is a guess for mu_x (2d) or [mu_x,mu_y] (3d),
+                 for solver_fs - is a guess for mu_x (2d) or [mu_x, mu_y] (3d),
                  for solver_fd - is a guess for PDE solution u_calc
                  * is set by set_sol0 function
     tau        - [None] tt-accuracy for round-operations and cross-function
     eps_lss    - [None] accuracy for linear system solver
     tau_lss    - [None] tt-accuracy for round-operations for result of linear
-                 system solution (if is None, then the real accuracy will be used)
+                 system solution
+                 * if is None, then the real accuracy will be used
     tau_real   - [None] tt-accuracy for construction of real (analytical)
-                 solution (if is None, then it will be selected as tau * 1.E-2)
+                 solution
+                 * if is None, then it will be selected as tau * 1.E-2
                  * tau_* and eps_lss are set by set_tau function
 
                  Calculation results [and default values]
@@ -89,6 +93,7 @@ class Pde(ModelPde):
     set_lss_params - set parameters for linear system solver
                      * Default parameters are set automatically
     set_solver_txt - set solver_txt
+    set_bc         - set bc (boundary conditions)
     set_verb       - set verb_gen, verb_crs and verb_lss
     set_sol0       - set sol0
     set_tau        - set all tt-accuracies
@@ -99,7 +104,9 @@ class Pde(ModelPde):
     present_res    - present calculation results in full text mode
     plot_res       - plot u_real, u_calc (one or both of them may be None)
                      and its derivatives 
-                     * call this function only for moderate d values          
+                     * if MODE_TT or MODE_SP is used, then transformation 
+                     to MODE_NP will be performed, so call this function 
+                     only for moderate d values
     copy           - copy parameters and calc results to a new Pde instanсe 
                      * functions and arrays are not copied by default
     '''
@@ -222,28 +229,26 @@ class Pde(ModelPde):
                    with_uz_real=False, with_uz_calc=False,
                    with_grd=False, with_sol0=False, with_funcs=False):     
         PDE = Pde()
-        PDE.out_file      = self.out_file
-        PDE.print_to_std  = self.print_to_std
-        PDE.print_to_file = self.print_to_file
+        PDE.set_print(self.print_to_std, self.print_to_file, self.out_file)
         PDE.set_dim(self.dim)
         PDE.set_mode(self.mode)
-        PDE.model_num     = self.model_num
-        PDE.params        = deepcopy(self.params)
-        PDE.params_txt    = self.params_txt
-        PDE.txt           = self.txt
-        PDE.L             = self.L
-        PDE.k_txt         = self.k_txt
-        PDE.f_txt         = self.f_txt
-        PDE.u_txt         = self.u_txt
-        PDE.ux_txt        = self.ux_txt
-        PDE.uy_txt        = self.uy_txt
-        PDE.uz_txt        = self.uz_txt
+        PDE.model_num        = self.model_num
+        PDE.params           = deepcopy(self.params)
+        PDE.params_txt       = self.params_txt
+        PDE.txt              = self.txt
+        PDE.L                = self.L
+        PDE.k_txt            = self.k_txt
+        PDE.f_txt            = self.f_txt
+        PDE.u_txt            = self.u_txt
+        PDE.ux_txt           = self.ux_txt
+        PDE.uy_txt           = self.uy_txt
+        PDE.uz_txt           = self.uz_txt
         if with_grd: PDE.GRD = self.GRD.copy()
-        PDE.LSS           = self.LSS.copy()
+        PDE.LSS              = self.LSS.copy()
         PDE.set_solver_txt(self.solver_txt)
         PDE.set_bc(self.bc)
         PDE.set_verb(self.verb_gen, self.verb_crs, self.verb_lss)
-        if with_sol0 and self.sol0: PDE.set_sol0(self.sol0.copy())
+        if with_sol0 and self.sol0 is not None: PDE.set_sol0(self.sol0.copy())
         PDE.set_tau(self.tau, self.eps_lss, self.tau_lss, self.tau_real)
         PDE.update_d(self.d)
         PDE.t = deepcopy(self.t)
@@ -269,30 +274,3 @@ class Pde(ModelPde):
         PDE.uf_calc = self.uf_calc
         PDE.uf_err  = self.uf_err
         return PDE
-          
-#        PDE_tmp = deepcopy(self)
-#        if not with_u_real:
-#            PDE_tmp.u_real = None
-#        if not with_u_calc:
-#            PDE_tmp.u_calc = None
-#        if not with_ux_calc:
-#            PDE_tmp.ux_calc = None
-#        if not with_ux_real:
-#            PDE_tmp.ux_real = None
-#        if not with_uy_calc:
-#            PDE_tmp.uy_calc = None
-#        if not with_uy_real:
-#            PDE_tmp.uy_real = None
-#        if not with_uz_calc:
-#            PDE_tmp.uz_calc = None
-#        if not with_uz_real:
-#            PDE_tmp.uz_real = None
-#        if not with_funcs:
-#            PDE_tmp.sol0 = None
-#            PDE_tmp.f    = None
-#            PDE_tmp.k    = None
-#            PDE_tmp.u    = None
-#            PDE_tmp.ux   = None
-#            PDE_tmp.uy   = None
-#            PDE_tmp.uz   = None    
-#        return PDE_tmp

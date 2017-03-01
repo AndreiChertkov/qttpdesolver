@@ -2,8 +2,8 @@
 SOLVER_FS = 'fs'
 SOLVER_FD = 'fd'
 
-BC_HD = 'hd'
-BC_PR = 'pr'
+BC_HD     = 'hd'
+BC_PR     = 'pr'
 
 import time
 
@@ -27,7 +27,8 @@ class Solver(object):
         self.mode = self.PDE.mode
         if self.mode == MODE_SP and self.name == SOLVER_FS:
            raise ValueError('MODE_SP is not available for Solver-FS.')
-        if PDE.bc == BC_PR and self.name == SOLVER_FD:
+        self.bc = self.PDE.bc
+        if self.bc == BC_PR and self.name == SOLVER_FD:
            raise ValueError('BC_PR is not available for Solver-FD.')
            
     def clean(self):
