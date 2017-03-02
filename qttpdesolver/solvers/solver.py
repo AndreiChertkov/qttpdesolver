@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-SOLVER_FS = 'fs'
-SOLVER_FD = 'fd'
-
-BC_HD     = 'hd'
-BC_PR     = 'pr'
+SOLVER_FS    = 'fs'
+SOLVER_FD    = 'fd'
+SOLVER_FS_NH = 'fs-nh'
+BC_HD        = 'hd'
+BC_PR        = 'pr'
 
 import time
 
@@ -22,10 +22,10 @@ class Solver(object):
     def set_pde(self, PDE):
         self.PDE = PDE
         self.name = self.PDE.solver_txt
-        if self.name is not None and self.name not in [SOLVER_FS, SOLVER_FD]:
+        if self.name is not None and self.name not in [SOLVER_FS, SOLVER_FS_NH, SOLVER_FD]:
             raise ValueError('Incorrect name of the solver.')
         self.mode = self.PDE.mode
-        if self.mode == MODE_SP and self.name == SOLVER_FS:
+        if self.mode == MODE_SP and self.name in [SOLVER_FS, SOLVER_FS_NH]:
            raise ValueError('MODE_SP is not available for Solver-FS.')
         self.bc = self.PDE.bc
         if self.bc == BC_PR and self.name == SOLVER_FD:
@@ -118,6 +118,9 @@ def create_solver(PDE):
     if PDE.solver_txt==SOLVER_FS and PDE.dim==3:
         from .solver_fs.solver_fs_3d import SolverFS_3d
         return SolverFS_3d(PDE)
+    if PDE.solver_txt==SOLVER_FS_NH and PDE.dim==1:
+        from .solver_fs_nh.solver_fs_nh_1d import SolverFS_NH_1d
+        return SolverFS_NH_1d(PDE)
     if PDE.solver_txt==SOLVER_FD and PDE.dim==1:
         from .solver_fd.solver_fd_1d import SolverFD_1d
         return SolverFD_1d(PDE)

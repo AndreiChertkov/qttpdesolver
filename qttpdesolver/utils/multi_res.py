@@ -46,7 +46,7 @@ class MultiRes(object):
                     continue
                 self.pde_lists[solver][mode][i].present_res_1s()
     
-    def tbl_params(self, lbl='', cpt='', pos='t', tfile=None, bold_hrow=True):
+    def tbl_params(self, lbl='', cpt='', pos='t', tfile=None, bold_hrow=True, infig=True):
         hrow = ['Parameter', 'Value', 'Parameter', 'Value']
         rows, fmts = [], []
         
@@ -69,7 +69,7 @@ class MultiRes(object):
         rows.append(row); fmts.append(fmt)
         
         row, fmt = [], []      
-        row.extend(['AMEn sweeps max', self.PDE.LSS.nswp])
+        row.extend(['AMEn iters max', self.PDE.LSS.nswp])
         fmt.extend(['%-s', '%-2d'])
         row.extend(['AMEn kickrank', self.PDE.LSS.kickrank])
         fmt.extend(['%-s', '%-1d'])
@@ -89,12 +89,12 @@ class MultiRes(object):
         fmt.extend(['%-s', '%-s'])
         rows.append(row); fmts.append(fmt)
             
-        TBL = Table(hrow, rows, fmts, lbl, cpt, bold_hrow, False, pos, elem2tex=False)
+        TBL = Table(hrow, rows, fmts, lbl, cpt, bold_hrow, False, pos, elem2tex=False, infig=infig)
         TBL.save(self._tfile(tfile))
         TBL.present(rem=[], verb=self.verb)
     
     def tbl_eranks(self, solver, mode=MODE_TT, ds=None, lbl='', cpt='', pos='t', 
-                   tfile=None, hrow_rem=None, bold_hrow=True, bold_hcol=True):
+                   tfile=None, hrow_rem=None, bold_hrow=True, bold_hcol=True, infig=True):
         if ds is None:
             ds = self.d_lists[solver][mode]
         hrow = ['d']
@@ -117,12 +117,12 @@ class MultiRes(object):
             if not PDE.d in ds:
                 continue
             rows.append([PDE.d] + [PDE.r[elem] for elem in hrow[1:]])
-        TBL = Table(hrow, rows, fmts, lbl, cpt, bold_hrow, bold_hcol, pos)
+        TBL = Table(hrow, rows, fmts, lbl, cpt, bold_hrow, bold_hcol, pos, infig=infig)
         TBL.save(self._tfile(tfile))
         TBL.present(rem=['$', '\qttvect', '\qttmatr'], verb=self.verb)
         
     def tbl_result(self, solver, mode=MODE_TT, ds=None, lbl='', cpt='', pos='t', 
-                   tfile=None, hrow_rem=None, bold_hrow=True, bold_hcol=True):
+                   tfile=None, hrow_rem=None, bold_hrow=True, bold_hcol=True, infig=True):
         if ds is None:
             ds = self.d_lists[solver][mode]
         PDE0 = self.pde_lists[solver][mode][0]
@@ -186,7 +186,7 @@ class MultiRes(object):
                         del rows[j][i]
                 except:
                     pass
-        TBL = Table(hrow, rows, fmts, lbl, cpt, bold_hrow, bold_hcol, pos, elem2tex=False)
+        TBL = Table(hrow, rows, fmts, lbl, cpt, bold_hrow, bold_hcol, pos, elem2tex=False, infig=infig)
         TBL.save(self._tfile(tfile))
         TBL.present(rem=['$'], verb=self.verb)
 

@@ -585,3 +585,70 @@ def set_model_16(PDE):
 #        return c1 / k_func(x , w1) - 1.
 #    
 #    PDE.k, PDE.f, PDE.u, PDE.ux = k_func, f_func, u_func, ux_func
+
+
+
+
+
+
+models_txt.append('-div(k grad u) = f in [0, 1]; BC: u=0; k - 1d multiscale coeff.') 
+models_names.append('Analyt num hom 1D')    
+def set_model_17(PDE):
+    PDE.txt = models_txt[17]
+    PDE.dim = 1; PDE.L = 1.; PDE.bc = BC_HD
+    PDE.k_txt  = 'k  = (1+x) 2/3 (1+cos^2(2\pi x/e))'
+    PDE.f_txt  = 'f  = -1'
+    PDE.u_txt  = 'u  = ... Exact homogenized solution (is known)'
+    PDE.ux_txt = 'ux = ... From homogenized solution and 1th order appr (is known)'
+
+    PDE.params = [1.E-8]
+    PDE.params_txt = 'e [=%-10.2e]'
+
+    def k0_func(x, e=None):
+        return x + 1.
+    
+    def k1_func(x, e=1):
+        # x should in e-units here
+        c = np.cos(2.*np.pi*x)
+        return 2./3.*(1.+c*c)
+    
+    def k1_der_func(x, e=None):
+        # x should in e-units here
+        c = np.cos(2.*np.pi*x)
+        s = np.sin(2.*np.pi*x)
+        return -8.*np.pi/3.*c*s
+    
+    def k_func(x, e):
+        return k0_func(x)*k1_func(x/e)
+    
+    def f_func(x, e=None):
+        return -1.*np.ones(x.shape)
+    
+    def u0(x, e=None):  
+        return 3./2./np.sqrt(2.) * (x - np.log(1.+x)/np.log(2.))
+        
+    def u0_der(x, e=None):
+        return 3./2./np.sqrt(2.) * (1. - 1./(1.+x)/np.log(2.))
+    
+    def ksi(x, e=None, C=0.):
+        # x should in e-units here
+        return 1./2./np.pi*np.arctan( np.tan(2.*np.pi*x)/np.sqrt(2.) )-x+C
+    
+    def ksi_der(x, e=None):
+        # x should in e-units here
+        c = np.cos(2.*np.pi*x)
+        return np.sqrt(2.)/(1.+c*c)-1.
+    
+    def u_func(x, e=None):
+        # u0: exact homogenized solution
+        # second order u0(x) + e*u1(x, x/e), u1(x,y) = ksi(y)*u0_der(x)   
+        return u0(x) #+ e*ksi(x, e)*u0_der(x)
+        
+    def ux_func(x, e):
+        # du/dx
+        return u0_der(x) * (1.+ksi_der(x))
+        
+    PDE.k, PDE.f, PDE.u, PDE.ux = k_func, f_func, u_func, ux_func
+    PDE.k0 = k0_func
+    PDE.k1 = k1_func
+    PDE.k1_der = k1_der_func

@@ -273,4 +273,11 @@ class Pde(ModelPde):
         PDE.uf_real = self.uf_real
         PDE.uf_calc = self.uf_calc
         PDE.uf_err  = self.uf_err
+        if with_funcs:
+            PDE.k  = self.k
+            PDE.f  = self.f
+            PDE.u  = self.u
+            PDE.ux = self.ux
+            PDE.uy = self.uy
+            PDE.uz = self.uz
         return PDE

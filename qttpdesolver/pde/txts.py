@@ -82,13 +82,16 @@ def compose_info(PDE, full=False):
     if not full and PDE.mode != MODE_TT:
         return s
     s+= '__________________TT parameters\n'
-    s+= _str('tau           : ', PDE.tau               , '%-8.2e')
-    s+= _str('eps_lss       : ', PDE.eps_lss           , '%-8.2e')
-    s+= _str('tau_lss       : ', PDE.tau_lss           , '%-8.2e')
-    s+= _str('tau_real      : ', PDE.tau_real          , '%-8.2e')
-    s+= _str('lss: nswp     : ', PDE.LSS.nswp          , '%-4d') 
-    s+= _str('lss: kickrank : ', PDE.LSS.kickrank      , '%-4d')  
-    s+= _str('lss: use sol0 : ', PDE.sol0 is not None  , '%-r') 
+    s+= _str('tau                : ', PDE.tau               , '%-8.2e')
+    s+= _str('eps_lss            : ', PDE.eps_lss           , '%-8.2e')
+    s+= _str('tau_lss            : ', PDE.tau_lss           , '%-8.2e')
+    s+= _str('tau_real           : ', PDE.tau_real          , '%-8.2e')
+    s+= _str('lss: nswp          : ', PDE.LSS.nswp          , '%-4d') 
+    s+= _str('lss: kickrank      : ', PDE.LSS.kickrank      , '%-4d')  
+    s+= _str('lss: max full size : ', PDE.LSS.max_full_size , '%-4d') 
+    s+= _str('lss: local restart : ', PDE.LSS.local_restart , '%-4d') 
+    s+= _str('lss: local iters   : ', PDE.LSS.local_iters   , '%-4d') 
+    s+= _str('lss: use sol0      : ', PDE.sol0 is not None  , '%-r') 
     return s
     
 def _str(name, val, form='%-s', delim='\n', none_is=None):

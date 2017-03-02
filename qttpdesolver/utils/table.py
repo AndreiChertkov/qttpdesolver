@@ -4,10 +4,13 @@ from IPython.display import display, Latex
 class Table(object):
     
     def __init__(self, hrow, rows, fmts, lbl='', cpt='',
-                 bold_hrow=True, bold_hcol=True, pos='t', elem2tex=True):
+                 bold_hrow=True, bold_hcol=True, pos='t', elem2tex=True, infig=True):
         if not isinstance(fmts[0], list):
             fmts = [fmts] * len(rows)
-        self.tbl = '\\begin{figure}[%s]\n\t\\begin{center}\n'%pos
+        self.tbl = ''    
+        if infig:
+            self.tbl+= '\\begin{figure}[%s]\n'%pos
+        self.tbl = '\t\\begin{center}\n'
         self.tbl+= '\t\t\\captionof{table}{%s}\n'%cpt
         self.tbl+= '\t\t\\label{%s}\n\t\t\\begin{tabular}{ '%lbl
         self.tbl+= '| l '*len(hrow) + '|}\n\t\t\t\\hline\n\t\t\t'
@@ -27,8 +30,10 @@ class Table(object):
                 else: self.tbl+= ' %-s & '%(fmts[i][j]%elem)
             self.tbl = self.tbl[:-2]
         self.tbl+= ' \n\t\t\t\\\\ \\hline\n\t\t\\end{tabular}\n '
-        self.tbl+= ' \t\\end{center}\n\\end{figure} '
-
+        self.tbl+= ' \t\\end{center} '
+        if infig:
+            self.tbl+= ' \n\\end{figure} '
+            
     def _elem2tex(self, elem):
         self.vector_mask = '\\qttvect{%s}'
         self.matrix_mask = '\\qttmatr{%s}'

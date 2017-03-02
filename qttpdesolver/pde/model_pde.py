@@ -124,6 +124,15 @@ class ModelPde(object):
     def k_func(self, *r):
         return self.k(*(self._split_r(r)+self.get_params_list()))
         
+    def k0_func(self, *r):
+        return self.k0(*(self._split_r(r)+self.get_params_list()))
+        
+    def k1_func(self, *r):
+        return self.k1(*(self._split_r(r)+self.get_params_list()))
+       
+    def k1_der_func(self, *r):
+        return self.k1_der(*(self._split_r(r)+self.get_params_list()))
+        
     def f_func(self, *r):
         return self.f(*(self._split_r(r)+self.get_params_list()))
         
