@@ -652,3 +652,197 @@ def set_model_17(PDE):
     PDE.k0 = k0_func
     PDE.k1 = k1_func
     PDE.k1_der = k1_der_func
+    
+models_txt.append('-div(k grad u) = f in [0, 1]; BC: u=0; k - 1d multiscale coeff.') 
+models_names.append('Analyt num hom 1D mod')    
+def set_model_18(PDE):
+    PDE.txt = models_txt[18]
+    PDE.dim = 1; PDE.L = 1.; PDE.bc = BC_HD
+    PDE.k_txt  = 'k  = (1+x) 2/3 (1+cos^2(2\pi x/e))'
+    PDE.f_txt  = 'f  = -1'
+    PDE.u_txt  = 'u  = ... Exact homogenized solution (is known)'
+    PDE.ux_txt = 'ux = ... From homogenized solution and 1th order appr (is known)'
+
+    PDE.params = [1.E-8]
+    PDE.params_txt = 'e [=%-10.2e]'
+
+    def k0_func(x, e=None):
+        return x + 1.
+    
+    def k1_func(x, e=1):
+        # x should in e-units here
+        c = np.cos(2.*np.pi*x)
+        return 2./3.*(1.+c*c)
+    
+    def k1_der_func(x, e=None):
+        # x should in e-units here
+        c = np.cos(2.*np.pi*x)
+        s = np.sin(2.*np.pi*x)
+        return -8.*np.pi/3.*c*s
+    
+    def k_func(x, e):
+        return k0_func(x)*k1_func(x/e)
+    
+    def f_func(x, e=None):
+        return -1.*np.ones(x.shape)
+    
+    def u0(x, e=None):  
+        return 3./2./np.sqrt(2.) * (x - np.log(1.+x)/np.log(2.))
+        
+    def u0_der(x, e=None):
+        return 3./2./np.sqrt(2.) * (1. - 1./(1.+x)/np.log(2.))
+    
+    def ksi(x, e=None, C=0.):
+        # x should in e-units here
+        return 1./2./np.pi*np.arctan( np.tan(2.*np.pi*x)/np.sqrt(2.) )-x+C
+    
+    def ksi_der(x, e=None):
+        # x should in e-units here
+        c = np.cos(2.*np.pi*x)
+        return np.sqrt(2.)/(1.+c*c)-1.
+    
+    def rho(x):
+        return np.minimum(x, 1. - x)
+    
+    def _sig(t):
+        return t * (2. - t) if t <= 1. else 1.
+    sig = np.vectorize(_sig)
+
+    def u_func(x, e=None):
+        # u0: exact homogenized solution
+        # second order u0(x) + e*u1(x, x/e), u1(x,y) = ksi(y)*u0_der(x)   
+        return u0(x) + e*sig(rho(x)/e)*ksi(x/e)*u0_der(x)
+        
+    def ux_func(x, e):
+        # du/dx
+        return u0_der(x) * (1.+ksi_der(x))
+        
+    PDE.k, PDE.f, PDE.u, PDE.ux = k_func, f_func, u_func, ux_func
+    PDE.k0 = k0_func
+    PDE.k1 = k1_func
+    PDE.k1_der = k1_der_func
+    
+models_txt.append('-div(k grad u) = f in [0, 1]; u_d = 0; u is known')
+models_names.append('xxx')
+def set_model_19(PDE):
+    PDE.txt = models_txt[19]
+    PDE.dim = 1; PDE.L = 1.
+    
+    def k_func(x , e=1.):
+        return 1. / ( 2. + np.sin(2.*np.pi*x/e) )
+
+    PDE.k_txt = 'k  = ( 2 + sin(2\pi x/e) )^{-1}'
+    PDE.k = k_func
+
+    def f_func(x, e=None):
+        return -1.*np.ones(x.shape)
+
+    PDE.f_txt = 'f  = -1'
+    PDE.f = f_func
+
+    def u_func(x, e):
+        w = 2.*np.pi/e
+        s1 = np.sin(w*x)
+        c1 = np.cos(w*x)
+        C1 = 1. - 1./w*np.cos(w) + 1./w/w*np.sin(w)
+        C1/= 1./w*np.cos(w) - 1./w - 2.
+        C2 = C1/w
+        return x*x + 2.*C1*x - (x+C1)/w*c1 + 1./w/w*s1 + C2
+
+    PDE.u_txt = 'u  = exact is known'
+    PDE.u = u_func
+
+    def ux_func(x, e):
+        w = 2.*np.pi/e
+        s1 = np.sin(w*x)
+        C1 = 1. - 1./w*np.cos(w) + 1./w/w*np.sin(w)
+        C1/= 1./w*np.cos(w) - 1./w - 2.
+        return (x+C1)*(2.+s1)
+        
+    PDE.ux_txt = 'ux = exact is known'
+    PDE.ux = ux_func
+    
+    PDE.params = [1.E-8]
+    PDE.params_txt = 'e [=%-8.2e]'
+    
+    
+models_txt.append('-div(k grad u) = f in [0, 1]; BC: u=0; k - 1d multiscale coeff.') 
+models_names.append('Analyt num hom 1D (k periodic)')    
+def set_model_20(PDE):
+    PDE.txt = models_txt[20]
+    PDE.dim = 1; PDE.L = 1.; PDE.bc = BC_HD
+    PDE.k_txt  = 'k  = (2+cos(2\pi x/e))^{-1}'
+    PDE.f_txt  = 'f  = -1'
+    PDE.u_txt  = 'u  = ... Exact solution is known'
+    PDE.ux_txt = 'ux = ... Exact derivative is known'
+
+    PDE.params = [1.E-8]
+    PDE.params_txt = 'e [=%-10.2e]'
+
+    def k_func(x, e=1.):
+        w = 2.*np.pi/e
+        c = np.cos(w*x)
+        return 1./(2.+c)
+    
+    def f_func(x, e=None):
+        return -1.*np.ones(x.shape)
+
+    def u_func(x, e=1.):
+        w = 2.*np.pi/e
+        c = np.cos(w*x)
+        s = np.sin(w*x)
+        A =-1./2.
+        B =-1./w/w
+        return x*x + 2.*A*x + A/w*s + x/w*s + 1./w/w*c + B
+        
+    def ux_func(x, e):
+        w = 2.*np.pi/e
+        c = np.cos(w*x)
+        A =-1./2.
+        return 2.*x + 2.*A + A*c + x*c
+        
+    PDE.k, PDE.f, PDE.u, PDE.ux = k_func, f_func, u_func, ux_func
+
+models_txt.append('-div(k grad u) = f in [0, 1]^2; BC: u=0; k - 2d multiscale coeff.') 
+models_names.append('Analyt num hom 2D (k periodic)')    
+def set_model_21(PDE):
+    PDE.txt = models_txt[21]
+    PDE.dim = 2; PDE.L = 1.; PDE.bc = BC_HD
+    PDE.k_txt  = 'k  = (2+cos(2\pi x/e))^{-1}'
+    PDE.f_txt  = 'f  = -1'
+    PDE.u_txt  = 'u  = ... Exact solution is known'
+    PDE.ux_txt = 'ux = ... Exact derivative is known'
+    PDE.uy_txt = 'uy = ... Exact derivative is known'
+    
+    PDE.params = [1.E-8]
+    PDE.params_txt = 'e [=%-10.2e]'
+
+    def k_func(x, y, e=1.):
+        w = 2.*np.pi/e
+        c = np.cos(w*x)
+        return 1./(2.+c)
+    
+    def f_func(x, y, e=None):
+        return -1.*np.ones(x.shape)
+
+    def u_func(x, y, e=1.):
+        w = 2.*np.pi/e
+        c = np.cos(w*x)
+        s = np.sin(w*x)
+        A =-1./2.
+        B =-1./w/w
+        return x*x + 2.*A*x + A/w*s + x/w*s + 1./w/w*c + B
+        
+    def ux_func(x, y, e):
+        w = 2.*np.pi/e
+        c = np.cos(w*x)
+        A =-1./2.
+        return 2.*x + 2.*A + A*c + x*c
+        
+    def uy_func(x, y, e):
+        w = 2.*np.pi/e
+        c = np.cos(w*x)
+        A =-1./2.
+        return 2.*x + 2.*A + A*c + x*c
+    
+    PDE.k, PDE.f = k_func, f_func#, PDE.u, PDE.ux, PDE.uy #, u_func, ux_func, uy_func

@@ -199,6 +199,20 @@ class Matrix(TensorBase):
         return res
         
     @staticmethod
+    def volterrap(d, mode=MODE_NP, tau=None, h=1., name=DEF_MATRIX_NAME):
+        '''
+        Periodic Volterra 1D matrix (pseudo inverse to periodic finite difference).
+        '''
+        E = Matrix.ones(d, mode, tau)
+        B = Matrix.volterra(d, mode, tau, h)     
+        G = B - h*(E.dot(B) + B.dot(E)) + h*(h+1)/2 * E
+        #from ...tensor_wrapper.matrix import toeplitz
+        #c = 1.5 + 0.5*h - h*np.arange(n+1, 2*n+1, 1.)
+        #r = 0.5 + 0.5*h - h*np.arange(n+1, 1, -1.)
+        #B = Matrix(h*toeplitz(c=c, r=r), d, mode, tau)
+        return G
+    
+    @staticmethod
     def findif(d, mode=MODE_NP, tau=None, h=1., name=DEF_MATRIX_NAME):
         '''
         Finite difference 1D matrix
@@ -217,6 +231,14 @@ class Matrix(TensorBase):
             res.x*= (1./h)
             res = res.round()
         return res
+    
+    @staticmethod
+    def findifp(d, mode=MODE_NP, tau=None, h=1., name=DEF_MATRIX_NAME):
+        '''
+        Periodic finite difference 1D matrix
+        [i, j] = 1/h if i=j, [i, j] =-1/h if i=j+1 or i=0,j=-1 and = 0 otherwise.
+        '''
+        return Matrix.findif(d, mode, tau, h) + Matrix.unit(d, mode, tau, i=0, j=-1, val=-1./h)
         
     @staticmethod
     def shift(d, mode=MODE_NP, tau=None, name=DEF_MATRIX_NAME):

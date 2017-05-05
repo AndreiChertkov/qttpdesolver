@@ -12,6 +12,8 @@ setup(
                 'qttpdesolver.solvers', 
                 'qttpdesolver.solvers.solver_fs', 
                 'qttpdesolver.solvers.solver_fd', 
+                'qttpdesolver.solvers.solver_fsx', 
+                'qttpdesolver.solvers.solver_fdx', 
                 'qttpdesolver.solvers.solver_fs_nh'],
     include_package_data = True,
     requires = ['python (>= 2.7)'],

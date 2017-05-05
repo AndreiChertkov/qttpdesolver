@@ -2,9 +2,9 @@
 from ..solver import BC_PR, Solver
 from ...tensor_wrapper import Vector, Matrix
 
-class SolverFS_NH_1d(Solver):
+class SolverFS_NH_2d(Solver):
     '''
-    1D Finite Sum (FS) solver for numerical homogenization
+    2D Finite Sum (FS) solver for numerical homogenization
     of multiscale elliptic PDEs of the form 
     -div(k grad u) = f. See parent class Solver for more details.
     '''
@@ -19,12 +19,15 @@ class SolverFS_NH_1d(Solver):
             
     def _gen_matrices(self, d, n, h, dim, mode, tau, verb):
         E = Matrix.ones(d, mode, tau)
+
         B = Matrix.volterra(d, mode, tau, h)     
+        
         G = B - h*(E.dot(B) + B.dot(E)) + h*(h+1)/2 * E
         #from ...tensor_wrapper.matrix import toeplitz
         #c = 1.5 + 0.5*h - h*np.arange(n+1, 2*n+1, 1.)
         #r = 0.5 + 0.5*h - h*np.arange(n+1, 1, -1.)
         #B = Matrix(h*toeplitz(c=c, r=r), d, mode, tau)
+
         iB = Matrix.findif(d, mode, tau, h)
         
         self.Bx = B

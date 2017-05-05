@@ -116,6 +116,8 @@ class ModelPde(object):
         self.uy_txt, self.uy = None, None
         self.uz_txt, self.uz = None, None
         
+        self.kx, self.ky, self.kxy = None, None, None
+        
     def _split_r(self, r):
         if not self.mode==MODE_TT:
             return list(r)
@@ -124,6 +126,20 @@ class ModelPde(object):
     def k_func(self, *r):
         return self.k(*(self._split_r(r)+self.get_params_list()))
         
+    def kx_func(self, *r):
+        return self.kx(*(self._split_r(r)+self.get_params_list()))
+    
+    def ky_func(self, *r):
+        return self.ky(*(self._split_r(r)+self.get_params_list()))
+    
+    def kxy_func(self, *r):
+        return self.kxy(*(self._split_r(r)+self.get_params_list()))
+    
+    
+    
+    
+    
+    
     def k0_func(self, *r):
         return self.k0(*(self._split_r(r)+self.get_params_list()))
         

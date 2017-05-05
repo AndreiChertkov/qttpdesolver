@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 SOLVER_FS    = 'fs'
 SOLVER_FD    = 'fd'
+SOLVER_FSX   = 'fsx'
+SOLVER_FDX   = 'fdx'
 SOLVER_FS_NH = 'fs-nh'
 BC_HD        = 'hd'
 BC_PR        = 'pr'
@@ -22,13 +24,13 @@ class Solver(object):
     def set_pde(self, PDE):
         self.PDE = PDE
         self.name = self.PDE.solver_txt
-        if self.name is not None and self.name not in [SOLVER_FS, SOLVER_FS_NH, SOLVER_FD]:
+        if self.name is not None and self.name not in [SOLVER_FS, SOLVER_FS_NH, SOLVER_FD, SOLVER_FSX, SOLVER_FDX]:
             raise ValueError('Incorrect name of the solver.')
         self.mode = self.PDE.mode
-        if self.mode == MODE_SP and self.name in [SOLVER_FS, SOLVER_FS_NH]:
+        if self.mode == MODE_SP and self.name in [SOLVER_FS, SOLVER_FS_NH, SOLVER_FSX]:
            raise ValueError('MODE_SP is not available for Solver-FS.')
         self.bc = self.PDE.bc
-        if self.bc == BC_PR and self.name == SOLVER_FD:
+        if self.bc == BC_PR and self.name in [SOLVER_FD, SOLVER_FDX]:
            raise ValueError('BC_PR is not available for Solver-FD.')
            
     def clean(self):
@@ -130,4 +132,10 @@ def create_solver(PDE):
     if PDE.solver_txt==SOLVER_FD and PDE.dim==3:
         from .solver_fd.solver_fd_3d import SolverFD_3d
         return SolverFD_3d(PDE)
+    if PDE.solver_txt==SOLVER_FSX and PDE.dim==2:
+        from .solver_fsx.solver_fsx_2d import SolverFSX_2d
+        return SolverFSX_2d(PDE)
+    if PDE.solver_txt==SOLVER_FDX and PDE.dim==2:
+        from .solver_fdx.solver_fdx_2d import SolverFDX_2d
+        return SolverFDX_2d(PDE)
     raise ValueError('Unknown solver type or incorrect spatial dimension.')
