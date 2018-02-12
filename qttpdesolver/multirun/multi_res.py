@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 
-from qttpdesolver import MODE_NP, MODE_TT, MODE_SP, SOLVER_FS, SOLVER_FD
-from table import Table
+from .. import MODE_NP, MODE_TT, MODE_SP, SOLVER_FS, SOLVER_FD
+from .table import Table
 
 class MultiRes(object):
     '''

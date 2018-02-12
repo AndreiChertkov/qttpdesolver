@@ -23,13 +23,14 @@ class Grid(object):
         Generate spatial mesh on cell centers
         (xc,yc,zc=h/2, ..., xc,yc,zc=3h/2, ..., xc,yc,zc=L-h/2).
         and spatial mesh on right corners
-        (xr,yr,zr=h  , ..., xr,yr,zr=2h  , ..., xr,yr,zr=L).
+        (xr,yr,zr=h  , ..., xr,yr,zr=2h  , ..., xr,yr,zr=L)
+        for unit square (L=1).
         '''
+        self.clean()
         a = Vector.arange(self.d, self.mode, self.tau)
         e = Vector.ones(self.d, self.mode, self.tau)
         r_center = self.h * (a + e*0.5)
-        r_right  = self.h * (a + e)
-        self.clean()
+        r_right  = self.h * (a + e)       
         if self.dim==1:  
             self.xc = r_center
             self.xr = r_right

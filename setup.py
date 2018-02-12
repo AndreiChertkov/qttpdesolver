@@ -2,29 +2,29 @@
 import os
 from setuptools import setup
 
+def find_packages(package, basepath):
+  packages = [package]
+  for name in os.listdir(basepath):
+    path = os.path.join(basepath, name)
+    if not os.path.isdir(path):
+      continue
+    packages.extend(find_packages('%s.%s'%(package, name), path))
+  return packages
+
 setup(
     name = 'qttpdesolver',
     version = '0.1',
-    packages = ['qttpdesolver',
-                'qttpdesolver.utils',
-                'qttpdesolver.tensor_wrapper',
-                'qttpdesolver.pde',
-                'qttpdesolver.solvers', 
-                'qttpdesolver.solvers.solver_fs', 
-                'qttpdesolver.solvers.solver_fd', 
-                'qttpdesolver.solvers.solver_fsx', 
-                'qttpdesolver.solvers.solver_fdx', 
-                'qttpdesolver.solvers.solver_fs_nh'],
+    packages = find_packages('qttpdesolver', './qttpdesolver/'),
     include_package_data = True,
     requires = ['python (>= 2.7)'],
     description  = 'Fast solver for partial differential equations based on low rank quantized tensor train decomposition, that can operate on huge grids.',
-    long_description =  open(os.path.join(os.path.dirname(__file__), 'README.rst')).read(), 
+    long_description =  open(os.path.join(os.path.dirname(__file__), 'README.rst')).read(),
     author = 'Andrei Chertkov and Ivan Oseledets',
-    author_email = 'andrey.mipt@mail.ru ivan.oseledets@gmail.com',
+    author_email = 'andrey.mipt@mail.ru, ivan.oseledets@gmail.com',
     url = 'https://github.com/AndreChertkov/qttpdesolver',
     download_url = 'https://github.com/AndreChertkov/qttpdesolver',
     #license = 'BSD License',
-    keywords = 'tensor train, diffusion equation, pde, solver, qtt-decomposition',
+    keywords = 'partial differential equation, pde solver, multiscale problem, diffusion equation, heat conduction, tensor train, qtt-decomposition',
     classifiers = [
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

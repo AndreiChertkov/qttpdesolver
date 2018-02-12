@@ -1,10 +1,8 @@
-from .tensor_wrapper.tensor_base import MODE_NP, MODE_TT, MODE_SP
-from .tensor_wrapper.vector import Vector
-from .tensor_wrapper.matrix import Matrix
-from .solvers.solver import SOLVER_FS, SOLVER_FS_NH, SOLVER_FD, SOLVER_FSX, SOLVER_FDX
-from .solvers.solver import BC_HD, BC_PR
-from .solvers.solver import create_solver
+# -*- coding: utf-8 -*-
+from .tensor_wrapper import MODE_NP, MODE_TT, MODE_SP, Vector, Matrix, Func
+from .pde import Pde
+from .solvers import SOLVER_FS, SOLVER_FD
+from .solvers import BC_HD, BC_PR
+from .solvers import create_solver
 from .solve import auto_solve
-from .pde.pde import Pde
-from .utils.multi_solve import MultiSolve
-from .utils.multi_res import MultiRes
+from .multirun import MultiSolve, MultiRes

@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*- 
 from ..tensor_wrapper import MODE_TT
   
-def compose_model(PDE):
+def compose_model(PDE, PDE_FUNCS):
     ''' Prepare string representation of the PDE model.  '''
     s = ''
-    s+= _str('PDE:        ', PDE.txt)
-    s+= _str('Parameters: ', PDE._params2str())
-    s+= _str('BC        : ', PDE.bc)
-    s+= _str('', PDE.k_txt)
-    s+= _str('', PDE.f_txt)
-    s+= _str('', PDE.u_txt)
-    s+= _str('', PDE.ux_txt)
-    s+= _str('', PDE.uy_txt)
-    s+= _str('', PDE.uz_txt)
+    s+= _str('PDE        : ', PDE.txt)
+    s+= _str('Model      : ', PDE.model_name)
+    s+= _str('Parameters : ', _params2str(PDE))
+    s+= _str('BC         : ', PDE.bc)
+    for F in PDE_FUNCS:
+        Func = getattr(PDE, F)
+        s+= Func.desc_full+'\n' if Func else ''
     return s
         
 def compose_res_1s(PDE):
     ''' Prepare one-string representation of the computation result.  '''
     s = ''
     s+= _str('d=',       PDE.d,                    '%2d'   , '')
-    s+= _str('|',        PDE.solver_txt,           '%-2s'  , '')
+    s+= _str('|',        PDE.solver_name,          '%-2s'  , '')
     s+= _str('-',        PDE.mode,                 '%-2s'  , '')
     s+= _str('|',        PDE.bc,                   '%-2s'  , '')
     s+= _str('|er=',     PDE.u_err,                '%-8.1e', '')
@@ -28,9 +26,8 @@ def compose_res_1s(PDE):
     s+= _str('|erdz=',   PDE.uz_err,               '%-8.1e', '')
     s+= _str('|T=',      PDE.t_full,               '%8.3f' , '')
     s+= _str('|R=',      PDE.r['u_calc'],          '%6.1f' , '')
-    if PDE.LSS.iters > 0:
-        s+= _str('|It=',     PDE.LSS.iters,            '%2d'   , '')
-    if PDE.u_err is None and PDE.mode == MODE_TT:
+    s+= _str('|It=',     PDE.LSS.iters,            '%2d'   , '')
+    if not PDE.u_err and PDE.mode == MODE_TT:
         s+= _str('|maxres=', PDE.LSS.max_res,          '%-8.1e', '')
     return s
     
@@ -39,7 +36,7 @@ def compose_res(PDE):
     s = ''
     s+= _str('PDE                : ', PDE.txt               , '%-s') 
     s+= _str('PDE mode           : ', PDE.mode              , '%-s')  
-    s+= _str('Used PDE solver    : ', PDE.solver_txt        , '%-s') 
+    s+= _str('Used PDE solver    : ', PDE.solver_name       , '%-s') 
     s+= _str('Boundary condition : ', PDE.bc                , '%-s') 
     s+= _str('PDE dimension      : ', PDE.dim               , '%-4d') 
     s+= _str('Value of d         : ', PDE.d                 , '%-4d') 
@@ -68,10 +65,10 @@ def compose_info(PDE, full=False):
     ''' Prepare string representation of the computation parameters.  '''
     s = '__________________General parameters\n'
     s+= _str('Mode          : ', PDE.mode              , '%-s')  
-    s+= _str('Solver        : ', PDE.solver_txt        , '%-s')  
+    s+= _str('Solver        : ', PDE.solver_name       , '%-s')  
     s+= _str('Boundary cond.: ', PDE.bc                , '%-s') 
-    s+= _str('Model num     : ', PDE.model_num         , '%-2d')  
-    s+= _str('Parameters    : ', PDE._params2str()     , '%-s')
+    s+= _str('Model name    : ', PDE.model_name        , '%-s')  
+    s+= _str('Parameters    : ', _params2str(PDE)      , '%-s')
     s+= '__________________Verbosity parameters\n'
     s+= _str('verb_gen      : ', PDE.verb_gen          , '%-r') 
     s+= _str('verb_crs      : ', PDE.verb_crs          , '%-r') 
@@ -86,21 +83,21 @@ def compose_info(PDE, full=False):
     s+= _str('eps_lss            : ', PDE.eps_lss           , '%-8.2e')
     s+= _str('tau_lss            : ', PDE.tau_lss           , '%-8.2e')
     s+= _str('tau_real           : ', PDE.tau_real          , '%-8.2e')
-    s+= _str('lss: nswp          : ', PDE.LSS.nswp          , '%-4d') 
-    s+= _str('lss: kickrank      : ', PDE.LSS.kickrank      , '%-4d')  
-    s+= _str('lss: max full size : ', PDE.LSS.max_full_size , '%-4d') 
-    s+= _str('lss: local restart : ', PDE.LSS.local_restart , '%-4d') 
-    s+= _str('lss: local iters   : ', PDE.LSS.local_iters   , '%-4d') 
-    s+= _str('lss: use sol0      : ', PDE.sol0 is not None  , '%-r') 
+    s+= _str('lss> nswp          : ', PDE.LSS.nswp          , '%-4d') 
+    s+= _str('lss> kickrank      : ', PDE.LSS.kickrank      , '%-4d')  
+    s+= _str('lss> max full size : ', PDE.LSS.max_full_size , '%-4d') 
+    s+= _str('lss> local restart : ', PDE.LSS.local_restart , '%-4d') 
+    s+= _str('lss> local iters   : ', PDE.LSS.local_iters   , '%-4d') 
+    s+= _str('lss> use sol0      : ', PDE.sol0 is not None  , '%-r') 
     return s
     
 def _str(name, val, form='%-s', delim='\n', none_is=None):
-    if val is None:
-        if none_is == None:
-            return ''
-        return name + none_is + delim
-    if val == '':
-        return ''
-    if isinstance(val, list) and len(val)==0:
-        return '' 
+    if val in [None, ''] or isinstance(val, list) and len(val)==0:
+        return '' if none_is is None else name + none_is + delim 
     return name + form%val + delim
+
+def _params2str(PDE):
+    if PDE.params is None:
+        return ''
+    fnv = zip(PDE.params_forms, PDE.params_names, PDE.params)
+    return '; '.join(['%s=%s'%(n, f%v) for f, n, v in fnv])
