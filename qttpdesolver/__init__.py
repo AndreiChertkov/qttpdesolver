@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+__version__ = '0.1'
+
+
 from .tensor_wrapper import MODE_NP, MODE_TT, MODE_SP, Vector, Matrix, Func
 from .pde import Pde
 from .solvers import SOLVER_FS, SOLVER_FD
