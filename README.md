@@ -42,8 +42,8 @@ from the root folder of the project to perform all tests (-v option is available
 
 * **Authors**
 
-  * Andrei Chertkov (andrey.mipt@mail.ru)
-  * Ivan Oseledets (ivan.oseledets@gmail.com)
+- [Andrei Chertkov](https://github.com/AndreiChertkov)
+- [Ivan Oseledets](https://github.com/oseledets)
 
 * **Related publications**
 
