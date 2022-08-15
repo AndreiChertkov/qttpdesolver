@@ -23,13 +23,14 @@ class Grid(object):
         Generate spatial mesh on cell centers
         (xc,yc,zc=h/2, ..., xc,yc,zc=3h/2, ..., xc,yc,zc=L-h/2).
         and spatial mesh on right corners
-        (xr,yr,zr=h  , ..., xr,yr,zr=2h  , ..., xr,yr,zr=L).
+        (xr,yr,zr=h  , ..., xr,yr,zr=2h  , ..., xr,yr,zr=L)
+        for unit square (L=1).
         '''
+        self.clean()
         a = Vector.arange(self.d, self.mode, self.tau)
         e = Vector.ones(self.d, self.mode, self.tau)
         r_center = self.h * (a + e*0.5)
-        r_right  = self.h * (a + e)
-        self.clean()
+        r_right  = self.h * (a + e)       
         if self.dim==1:  
             self.xc = r_center
             self.xr = r_right
@@ -45,3 +46,14 @@ class Grid(object):
             self.xr = e.kron(e).kron(r_right) 
             self.yr = e.kron(r_right).kron(e)   
             self.zr = r_right.kron(e).kron(e)
+            
+    def copy(self):
+        GRD = Grid()
+        GRD.set_params(self.d, self.h, self.dim, self.tau, self.mode)
+        if self.xc is not None: GRD.xc = self.xc.copy()
+        if self.yc is not None: GRD.yc = self.yc.copy()
+        if self.zc is not None: GRD.zc = self.zc.copy()
+        if self.xr is not None: GRD.xr = self.xr.copy()
+        if self.yr is not None: GRD.yr = self.yr.copy()
+        if self.zr is not None: GRD.zr = self.zr.copy()
+        return GRD

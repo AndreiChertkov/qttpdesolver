@@ -5,12 +5,12 @@ import numpy as np
 from qttpdesolver import Pde, auto_solve
 from qttpdesolver import MODE_NP, MODE_TT, MODE_SP, SOLVER_FS, SOLVER_FD
 
-class TestDiffusion3DBase(unittest.TestCase):
+class Test_divkgrad_3d_hd_analyt(unittest.TestCase):
     ''' Base class for 3D diffusion problem  '''
     
     def setUp(self):
         self.PDE = Pde()
-        self.PDE.set_model('Simple. Analyt 3D diffusion PDE')
+        self.PDE.set_model('divkgrad_3d_hd_analyt')
         self.PDE.set_params([np.pi, np.pi*2, np.pi*3])
         self.PDE.set_verb(False, False, False)       
         self.PDE.set_tau(tau=1.E-10, eps_lss=1.E-10, tau_lss=1.E-10)
@@ -18,14 +18,10 @@ class TestDiffusion3DBase(unittest.TestCase):
                                 local_restart=20, trunc_norm=1, max_full_size=100)
         self.PDE.update_d(3)
 
-class TestDiffusion3D_fs(TestDiffusion3DBase):
-    ''' Test of PDE solution result for Solver-FS.  '''
-    
-    def setUp(self):
-        TestDiffusion3DBase.setUp(self)
-        self.PDE.set_solver_txt(SOLVER_FS)
-   
+class Test_divkgrad_3d_hd_analyt_fs(Test_divkgrad_3d_hd_analyt):
+
     def test_np(self):
+        self.PDE.set_solver_name(SOLVER_FS)
         self.PDE.set_mode(MODE_NP)
         auto_solve(self.PDE, present_res_1s=False)
 
@@ -35,6 +31,7 @@ class TestDiffusion3D_fs(TestDiffusion3DBase):
         self.assertTrue(self.PDE.uz_err < 4.76e-02)
 
     def test_tt(self):
+        self.PDE.set_solver_name(SOLVER_FS)
         self.PDE.set_mode(MODE_TT)
         auto_solve(self.PDE, present_res_1s=False)
 
@@ -44,7 +41,7 @@ class TestDiffusion3D_fs(TestDiffusion3DBase):
         self.assertTrue(self.PDE.uz_err < 4.76e-02)
         
     def test_sp(self):
-        ''' For Solver FS MODE_SP should be not available.  '''
+        self.PDE.set_solver_name(SOLVER_FS)
         self.PDE.set_mode(MODE_SP)
         raised = False
         try:
@@ -53,14 +50,10 @@ class TestDiffusion3D_fs(TestDiffusion3DBase):
             raised = True
         self.assertTrue(raised)
         
-class TestDiffusion3D_fd(TestDiffusion3DBase):
-    ''' Test of PDE solution result for Solver-FD.  '''
-    
-    def setUp(self):
-        TestDiffusion3DBase.setUp(self)
-        self.PDE.set_solver_txt(SOLVER_FD)
-        
+class Test_divkgrad_3d_hd_analyt_fd(Test_divkgrad_3d_hd_analyt):
+
     def test_np(self):
+        self.PDE.set_solver_name(SOLVER_FD)
         self.PDE.set_mode(MODE_NP)
         auto_solve(self.PDE, present_res_1s=False)
         
@@ -70,6 +63,7 @@ class TestDiffusion3D_fd(TestDiffusion3DBase):
         self.assertTrue(self.PDE.uz_err < 4.76e-02)
 
     def test_tt(self):
+        self.PDE.set_solver_name(SOLVER_FD)
         self.PDE.set_mode(MODE_TT)
         auto_solve(self.PDE, present_res_1s=False)
         
@@ -79,6 +73,7 @@ class TestDiffusion3D_fd(TestDiffusion3DBase):
         self.assertTrue(self.PDE.uz_err < 4.76e-02)
         
     def test_sp(self):
+        self.PDE.set_solver_name(SOLVER_FD)
         self.PDE.set_mode(MODE_SP)
         auto_solve(self.PDE, present_res_1s=False)
         
